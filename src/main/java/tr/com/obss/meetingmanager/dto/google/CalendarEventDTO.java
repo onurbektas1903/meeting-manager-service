@@ -11,7 +11,7 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 public class CalendarEventDTO implements Serializable {
-    private static final long serialVersionUID = 7067146390253236505L;
+    private static final long serialVersionUID = 281292269426505630L;
     private long start;
     private long end;
     private String title;
@@ -21,9 +21,6 @@ public class CalendarEventDTO implements Serializable {
     private boolean createMeeting;
     private String summary;
     private String creator;
-    private String accountEmail;
-    private String adminUserEmail;
-    private String credentialsFileName;
-    private String meetingId;
-
+    private GoogleAccountDTO account;
+    private String eventId;
 }

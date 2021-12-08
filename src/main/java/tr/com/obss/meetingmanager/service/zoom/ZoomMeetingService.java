@@ -3,59 +3,50 @@ package tr.com.obss.meetingmanager.service.zoom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tr.com.obss.meetingmanager.dto.MeetingDTO;
-import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
 import tr.com.obss.meetingmanager.dto.ProviderAccountDTO;
-import tr.com.obss.meetingmanager.dto.google.CalendarEventDTO;
+import tr.com.obss.meetingmanager.dto.SlotRequestDTO;
+import tr.com.obss.meetingmanager.dto.zoom.ZoomAccountDTO;
 import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
-import tr.com.obss.meetingmanager.feigns.GoogleCalendarServiceClient;
 import tr.com.obss.meetingmanager.feigns.ZoomServiceClient;
+import tr.com.obss.meetingmanager.mapper.zoom.ZoomMapperDecorator;
 import tr.com.obss.meetingmanager.service.MeetingManagerService;
 import tr.com.obss.meetingmanager.service.MeetingService;
-import tr.com.obss.meetingmanager.service.ProviderManagerService;
+import tr.com.obss.meetingmanager.service.google.GoogleMeetingService;
 
+import javax.transaction.Transactional;
 import java.util.List;
-import java.util.UUID;
 
-import static tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum.GOOGLE_MEET;
 import static tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum.ZOOM;
-import static tr.com.obss.meetingmanager.mapper.CalendarMeetMapper.toCalendarEventDTO;
 
 @Service
 @RequiredArgsConstructor
 public class ZoomMeetingService implements MeetingService {
-    private final GoogleCalendarServiceClient calendarClientService;
+    private final ZoomAccountService zoomAccountService;
     private final ZoomServiceClient zoomServiceClient;
     private final MeetingManagerService meetingManagerService;
-    private final ProviderManagerService providerManagerService;
+    private final GoogleMeetingService googleMeetingService;
+    private final ZoomMapperDecorator zoomMapper;
     @Override
     public MeetingDTO createMeeting(MeetingDTO meetingDTO) {
-        MeetingProviderDTO meetingProvider = providerManagerService.findByMeetingProviderType(GOOGLE_MEET);
-        ProviderAccountDTO calendarAccount = meetingProvider.getProviderAccounts().get(0);
-        ProviderAccountDTO meetingAccount = providerManagerService.getSuitableAccount(meetingDTO.getStart(), meetingDTO.getEnd(),
+            ZoomAccountDTO zoomAccount = zoomAccountService.findSuitableAccount(meetingDTO.getStart(), meetingDTO.getEnd(),
                 meetingDTO.getMeetingProvider());
-        meetingDTO.setId(UUID.randomUUID().toString());
-        meetingDTO.setProviderAccountDTO(meetingAccount);
-//        ZoomMeetingObjectDTO zoomResponse = zoomServiceClient.createMeeting(toZoomMeetObject(meetingDTO));
+
+//        ZoomMeetingObjectDTO zoomResponse = zoomServiceClient.createMeeting(zoomMapper.toZoomMeetObject(meetingDTO,zoomAccount));
 //        meetingDTO.setMeetingURL(zoomResponse.getJoin_url());
-        CalendarEventDTO calendarEventDTO = toCalendarEventDTO(meetingDTO);
-        calendarEventDTO.setCreateMeeting(false);
-        calendarEventDTO.setDescription(meetingDTO.getMeetingURL());
-        calendarEventDTO.setAccountEmail(calendarAccount.getAccountMail());
-        calendarEventDTO.setAdminUserEmail(calendarAccount.getAdminUserMail());
-        calendarEventDTO.setCredentialsFileName(calendarAccount.getFileName());
-//        CalendarEventDTO eventDTO = calendarClientService.scheduleMeeting(calendarEventDTO);
-        meetingManagerService.saveMeeting(meetingDTO);
-        return meetingDTO;
+//        googleMeetingService.addMeetingToCalendar(meetingDTO);
+        meetingDTO.setProviderAccount(ProviderAccountDTO.builder().id(zoomAccount.getId()).build());
+       return meetingManagerService.saveMeeting(meetingDTO);
     }
 
 
     @Override
     public MeetingDTO updateMeeting(MeetingDTO meetingDTO) {
-        return null;
+        googleMeetingService.updateCalendarMeeting(meetingDTO);
+        return meetingManagerService.updateMeeting(meetingDTO);
     }
 
     @Override
-    public MeetingDTO deleteMeeting(MeetingDTO meetingDTO) {
+    public MeetingDTO cancelMeeting(MeetingDTO meetingDTO) {
         return null;
     }
 
@@ -67,5 +58,11 @@ public class ZoomMeetingService implements MeetingService {
     @Override
     public MeetingProviderTypeEnum getStrategyName() {
         return ZOOM;
+    }
+
+    @Override
+    @Transactional
+    public SlotRequestDTO handleRequestApproval(SlotRequestDTO slotRequestDTO, boolean isApproved) {
+        return null;
     }
 }

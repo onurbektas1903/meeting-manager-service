@@ -1,30 +1,29 @@
-package tr.com.obss.meetingmanager.service.zoom;
+package tr.com.obss.meetingmanager.service.google;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
-import tr.com.obss.meetingmanager.dto.zoom.ZoomSettingsDTO;
 import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 import tr.com.obss.meetingmanager.service.ProviderManagerService;
 import tr.com.obss.meetingmanager.service.ProviderService;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
-import static tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum.ZOOM;
+import static tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum.GOOGLE;
 
 @Service
 @Data
 @RequiredArgsConstructor
-public class ZoomProviderService implements ProviderService {
+public class GoogleProviderService implements ProviderService {
     private final ObjectMapper mapper = new ObjectMapper();
     private final ProviderManagerService providerManagerService;
+
     @Override
     @Transactional
     public MeetingProviderDTO createMeetingProvider(MeetingProviderDTO meetingProviderDTO) {
-        //TODO validate
-        ZoomSettingsDTO zoomSettings = mapper.convertValue(meetingProviderDTO.getSettings(), ZoomSettingsDTO.class);
         return providerManagerService.saveMeetingProvider(meetingProviderDTO);
     }
 
@@ -38,9 +37,8 @@ public class ZoomProviderService implements ProviderService {
         return null;
     }
 
-
     @Override
     public MeetingProviderTypeEnum getStrategyName() {
-        return ZOOM;
+        return GOOGLE;
     }
 }

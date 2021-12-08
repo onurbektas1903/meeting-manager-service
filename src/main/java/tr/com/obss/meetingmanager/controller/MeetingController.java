@@ -5,13 +5,14 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import tr.com.obss.meetingmanager.dto.SlotRequestDTO;
 import tr.com.obss.meetingmanager.dto.MeetingDTO;
+import tr.com.obss.meetingmanager.dto.SlotRequestDTO;
 import tr.com.obss.meetingmanager.factory.MeetHandlerFactory;
 import tr.com.obss.meetingmanager.service.MeetingManagerService;
 import tr.com.obss.meetingmanager.service.SlotRequestService;
@@ -21,40 +22,54 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/meetings")
+@RequestMapping("/meeting-manager")
 @Validated
 public class MeetingController {
 private final MeetHandlerFactory handlerFactory;
 private final MeetingManagerService meetingManagerService;
 private final SlotRequestService slotRequestService;
 
-    @PostMapping("/create")
+    @PostMapping("/meeting")
     @ResponseBody
     public MeetingDTO createMeeting(
            @Valid @RequestBody MeetingDTO meetingDTO) {
         return handlerFactory.findStrategy(meetingDTO.getMeetingProvider().getMeetingProviderType()).createMeeting(meetingDTO);
     }
-    @PostMapping("/create-change-meeting-slot-request")
+    @PostMapping("/meeting-slot-request")
     @ResponseBody
     public SlotRequestDTO createChangeMeetingSlotRequest(
            @Valid @RequestBody SlotRequestDTO slotRequestDTO) {
        return slotRequestService.createChangeSlotRequest(slotRequestDTO);
     }
-    @GetMapping("/{id}")
+
+    @PutMapping("/meeting-slot-request/{isApproved}")
+    @ResponseBody
+    public SlotRequestDTO handleSlotRequestApproval(@RequestBody SlotRequestDTO slotRequest,
+                                        @PathVariable boolean isApproved) {
+        return handlerFactory.findStrategy(slotRequest.getType()).handleRequestApproval(slotRequest,isApproved);
+    }
+
+    @GetMapping("/meeting-slot-requests/{meetingId}")
+    @ResponseBody
+    public List<SlotRequestDTO> getSlotRequestsByMeeting(
+           @Valid @PathVariable String meetingId) {
+       return slotRequestService.getSlotRequestsByMeetingId(meetingId);
+    }
+    @GetMapping("/meeting/{id}")
     @ResponseBody
     public MeetingDTO getMeetingById(@PathVariable String id){
         return meetingManagerService.findById(id);
     }
 
-    @PostMapping("/update")
+    @PutMapping("/meeting/{id}")
     @ResponseBody
-    public MeetingDTO updateMeeting(
-            @Valid @RequestBody MeetingDTO meetingDTO) {
-
-        return handlerFactory.findStrategy(meetingDTO.getMeetingProviderType()).updateMeeting(meetingDTO);
+    public MeetingDTO updateMeeting(@RequestBody MeetingDTO meetingDTO,
+                                                @PathVariable String id) {
+        //TODO implement here
+        return handlerFactory.findStrategy(meetingDTO.getMeetingProvider().getMeetingProviderType()).updateMeeting(meetingDTO);
     }
     //TODO endpointi düzelt
-    @GetMapping("/")
+    @GetMapping("/meetings")
     @ResponseBody
     public List<MeetingDTO> listMeetings(@RequestParam(value = "start") long  start,
                                          @RequestParam(value = "end") long  end) {

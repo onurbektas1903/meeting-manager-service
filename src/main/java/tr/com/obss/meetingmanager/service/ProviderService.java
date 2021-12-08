@@ -7,9 +7,7 @@ import java.util.List;
 
 public interface ProviderService {
     MeetingProviderDTO createMeetingProvider(MeetingProviderDTO meetingProviderDTO);
-    MeetingProviderDTO updateMeetingProvider(MeetingProviderDTO meetingProviderDTO);
-    MeetingProviderDTO deleteMeetingProvider(MeetingProviderDTO meetingProviderDTO);
-    List<MeetingProviderDTO> listMeetingProviders();
+    MeetingProviderDTO updateMeetingProvider(MeetingProviderDTO meetingProviderDTO,String id);
+    MeetingProviderDTO makeProviderPassive(MeetingProviderDTO meetingProviderDTO);
     MeetingProviderTypeEnum getStrategyName();
-
 }

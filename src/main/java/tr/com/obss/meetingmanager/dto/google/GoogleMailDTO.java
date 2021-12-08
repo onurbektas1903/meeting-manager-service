@@ -13,10 +13,10 @@ import java.io.Serializable;
 @Builder
 public class GoogleMailDTO implements Serializable {
     private static final long serialVersionUID = -2131029533242986067L;
-    private String accountName;
-    private String credentialsFileName;
     private String subject;
     private String senderMail;
     private String recipientMail;
     private String body;
+    private GoogleAccountDTO account;
 }
+

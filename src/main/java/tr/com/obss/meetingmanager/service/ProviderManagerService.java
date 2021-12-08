@@ -5,18 +5,16 @@ import org.springframework.stereotype.Service;
 import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
 import tr.com.obss.meetingmanager.dto.ProviderAccountDTO;
 import tr.com.obss.meetingmanager.entity.MeetingProvider;
-import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
-import tr.com.obss.meetingmanager.exception.MeetingOccupiedException;
+import tr.com.obss.meetingmanager.entity.ProviderAccount;
 import tr.com.obss.meetingmanager.exception.NotFoundException;
-import tr.com.obss.meetingmanager.mapper.MeetingProviderMapper;
+import tr.com.obss.meetingmanager.mapper.meeting.MeetingProviderMapper;
 import tr.com.obss.meetingmanager.repository.MeetingProviderRepository;
 
 import javax.transaction.Transactional;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
-
-import static tr.com.obss.meetingmanager.enums.ConferenceProviderTypeEnum.POOL;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,46 +22,26 @@ public class ProviderManagerService {
 
     private final MeetingProviderMapper providerMapper;
     private final MeetingProviderRepository repository;
+    private final ProviderAccountManagerService accountManagerService;
     @Transactional
     public MeetingProviderDTO saveMeetingProvider(MeetingProviderDTO meetingProviderDTO) {
-        MeetingProvider meetingProvider = providerMapper.toEntity(meetingProviderDTO);
+        Set<String> accounts =
+                meetingProviderDTO.getProviderAccounts().parallelStream()
+                        .map(ProviderAccountDTO::getId).collect(Collectors.toSet());
+        List<ProviderAccount> accountList = accountManagerService.findAccountsByIds(accounts);
+        MeetingProvider meetingProvider = providerMapper.toEntityWithoutAccounts(meetingProviderDTO);
+        accountList.forEach(providerAccount -> providerAccount.setMeetingProvider(meetingProvider));
         meetingProvider.setId(UUID.randomUUID().toString());
+        meetingProvider.setProviderAccounts(accountList);
         MeetingProvider saved = repository.save(meetingProvider);
         return providerMapper.toDTO(saved);
     }
-    public MeetingProviderDTO findByMeetingProviderType(MeetingProviderTypeEnum type){
-        return providerMapper.toDTO(repository.findMeetingProviderByMeetingProviderType(type).orElseThrow(()-> new NotFoundException(
-                "Calendar Provider Not Found")));
+
+    public MeetingProviderDTO findById(String id) {
+        MeetingProvider meetingProvider = repository.findById(id).orElseThrow(() -> new NotFoundException(
+                "Meeting Provider Not Found"));
+        return providerMapper.toDTO(meetingProvider);
     }
-
-    public ProviderAccountDTO getSuitableAccount(long startDate, long endDate, MeetingProviderDTO providerDTO){
-        if(providerDTO.getConferenceType() == POOL){
-            return findFreeAccountsForGivenDateRange(startDate, endDate, providerDTO);
-        }else{
-            MeetingProvider provider = findById(providerDTO.getId());
-            if(provider.getProviderAccounts().isEmpty()){
-                throw new NotFoundException("Provider Account Not Found");
-            }
-            return providerMapper.toDTO(provider.getProviderAccounts().get(0));
-        }
-    }
-
-    public MeetingProvider findById(String id) {
-        return  repository.findById(id).orElseThrow(() -> new NotFoundException(
-                "Calendar Provider Not Found"));
-    }
-
-    private ProviderAccountDTO findFreeAccountsForGivenDateRange(long startDate, long endDate, MeetingProviderDTO providerDTO) {
-         List<ProviderAccountDTO> freeAccounts =repository.findFreeAccounts(startDate, endDate, providerDTO.getId());
-                 if(freeAccounts.isEmpty()){
-                    throw  new MeetingOccupiedException("Meeting occupied for selected provider",
-                             Collections.singleton(providerDTO.getName()));
-                 }
-
-         return freeAccounts.get(0);
-    }
-
-
     public MeetingProviderDTO updateMeetingProvider(MeetingProviderDTO meetingProviderDTO) {
         return null;
     }

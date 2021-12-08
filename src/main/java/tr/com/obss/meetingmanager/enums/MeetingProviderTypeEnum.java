@@ -2,7 +2,7 @@ package tr.com.obss.meetingmanager.enums;
 
 public enum MeetingProviderTypeEnum {
     ZOOM,
-    GOOGLE_MEET,
+    GOOGLE,
     MICROSOFT_TEAMS,
     CISCO_WEBEX
 }

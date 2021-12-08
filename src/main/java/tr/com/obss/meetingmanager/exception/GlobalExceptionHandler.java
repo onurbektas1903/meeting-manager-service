@@ -18,18 +18,23 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class GlobalExceptionHandler {
     //TODO Web requesti ne için kullanabilirim araştır
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity handleNotFoundException(
+    public ResponseEntity<ErrorMessage> handleNotFoundException(
             NotFoundException ex, WebRequest request) {
         return new ResponseEntity<>(new ErrorMessage(ex), NOT_FOUND);
     }
 
     @ExceptionHandler(MeetingOccupiedException.class)
-    public ResponseEntity handleMeetingOccupiedException(
+    public ResponseEntity<ErrorMessage> handleMeetingOccupiedException(
             MeetingOccupiedException ex, WebRequest request) {
         return new ResponseEntity<>(new ErrorMessage(ex), CONFLICT);
     }
+    @ExceptionHandler(NotUniqueException.class)
+    public ResponseEntity<ErrorMessage> handleNotUniqueException(
+            NotUniqueException ex, WebRequest request) {
+        return new ResponseEntity<>(new ErrorMessage(ex), CONFLICT);
+    }
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity handleMethodArgumentNotValidException(
+    public ResponseEntity<ErrorMessage> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException ex, WebRequest request) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {

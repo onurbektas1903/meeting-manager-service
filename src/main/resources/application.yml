@@ -12,16 +12,13 @@ spring:
     url: "jdbc:postgresql://localhost:5432/postgres"
     username: postgres
     password: postgres
-    dbName: postgres
+    dbName: meeting-manager
   jpa:
     hibernate:
       ddl-auto: update
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-#    properties:
-#      hibernate:
-#        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
 server:
-  port: 8087
+  port: 8089
 
 eureka:
   client:

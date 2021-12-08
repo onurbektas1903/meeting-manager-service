@@ -19,6 +19,7 @@ import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -39,5 +40,9 @@ public class MeetingProvider extends BaseEntity {
     private String userRoleGroup;
     private MeetingProviderTypeEnum meetingProviderType;
     @Type(type = "jsonb")
-    private HashMap<String,String> settings;
+    private Map<String,String> settings;
+
+    public MeetingProvider(Map<String, String> settings) {
+        this.settings = settings;
+    }
 }

@@ -60,7 +60,7 @@ public class ZoomMeetingObjectDTO implements Serializable {
 
     private  ZoomSettingsDTO settings;
 
-    private AccountDTO account;
+    private ZoomAccountDTO account;
 
     @Override
     public String toString() {

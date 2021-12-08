@@ -9,11 +9,10 @@ import java.io.Serializable;
 
 @Data
 @Slf4j
-@NoArgsConstructor
 @AllArgsConstructor
-public class GoogleProviderAccountDetail implements Serializable {
-
-    private static final long serialVersionUID = -7613145535055916247L;
-    private String accountMail;
-    private String fileName;
+@NoArgsConstructor
+public class GoogleMeetingSettings implements Serializable {
+    private static final long serialVersionUID = -1615738167514393144L;
+    private Boolean muted;
+    private Boolean canOthersHost;
 }

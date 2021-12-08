@@ -5,13 +5,16 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.Where;
 import tr.com.obss.meetingmanager.audit.AuditableEntity;
+import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -19,6 +22,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -28,12 +32,23 @@ import java.util.List;
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class ProviderAccount extends AuditableEntity {
     private static final long serialVersionUID = -1278099486349939102L;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "meeting_provider_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "meeting_provider_id")
     private MeetingProvider meetingProvider;
     private String applicationName;
-    private String adminUserMail;
-
+    private String accountMail;
+    private MeetingProviderTypeEnum meetingProviderType;
     @Type(type = "jsonb")
-    private HashMap<String,String> accountDetails;
+    @Column(columnDefinition = "jsonb")
+    private Map<String,String> accountDetails;
+    private Boolean isActive;
+
+    public ProviderAccount(String applicationName, String accountMail,
+                           Object accountDetails,
+                           Boolean isActive) {
+        this.applicationName = applicationName;
+        this.accountMail = accountMail;
+        this.accountDetails = (Map<String, String>) accountDetails;
+        this.isActive = isActive;
+    }
 }

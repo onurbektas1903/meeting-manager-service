@@ -18,6 +18,7 @@ import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
 import java.util.List;
 
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Where(clause = "deleted = false")
@@ -46,7 +47,7 @@ public class Meeting extends BaseEntity {
     private String description;
     private String organizer;
     private String meetingURL;
-    private long meetingId;
+    private String eventId;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "meeting")
     @Where(clause = "deleted = false")
     @SQLDelete(sql = "UPDATE Recipient SET deleted = true WHERE id = ?")
@@ -55,11 +56,6 @@ public class Meeting extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "provider_account_id", nullable = false)
     private ProviderAccount providerAccount;
-
-    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "meeting")
-    @Where(clause = "deleted = false")
-    @SQLDelete(sql = "UPDATE ChangeSlotRequest SET deleted = true WHERE id = ?")
-    private List<SlotRequest> slotRequests;
 
     public Meeting(String id,String title, long startDate, long endDate, String organizer) {
         setId(id);
