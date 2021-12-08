@@ -35,7 +35,7 @@ public class SlotRequestService {
   @Transactional
   public SlotRequestDTO createChangeSlotRequest(SlotRequestDTO slotRequestDTO) {
             googleMeetingService.sendChangeSlotMail(slotRequestDTO);
-    MeetingDTO meetingDTO = meetingManager.findById(slotRequestDTO.getMeetingId());
+    MeetingDTO meetingDTO = meetingManager.findMeetingById(slotRequestDTO.getMeetingId());
     validateSlotRequest(slotRequestDTO,meetingDTO);
 
     SlotRequest slotRequest = mapper.toEntity(slotRequestDTO);
@@ -52,7 +52,7 @@ public class SlotRequestService {
   @Transactional
   public SlotRequestDTO handleRequestApproval(SlotRequestDTO slotRequestDTO, boolean isApproved) {
     if (isApproved) {
-      MeetingDTO meetingDTO = meetingManager.findById(slotRequestDTO.getMeetingId());
+      MeetingDTO meetingDTO = meetingManager.findMeetingById(slotRequestDTO.getMeetingId());
       validateSlotRequest(slotRequestDTO,meetingDTO);
       meetingDTO.setStart(slotRequestDTO.getStartDate());
       meetingDTO.setEnd(slotRequestDTO.getEndDate());
@@ -60,7 +60,7 @@ public class SlotRequestService {
       slotRequestDTO.setRequestStatus(APPROVED);
       handlerFactory
           .findStrategy(meetingDTO.getMeetingProvider().getMeetingProviderType())
-          .updateMeeting(meetingDTO);
+          .handleUpdate(meetingDTO);
       return mapper.toDTO(repository.save(mapper.toEntity(slotRequestDTO)));
     } else {
       slotRequestDTO.setRequestStatus(REJECTED);

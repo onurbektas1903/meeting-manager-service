@@ -26,7 +26,6 @@ public class GoogleMeetingService implements MeetingService {
     @Value("${topics.notification}")
     private String notificationTopic;
 
-    private final MeetingManagerService meetingManagerService;
     private final GoogleCalendarServiceClient calendarClientService;
     private final GoogleAccountService googleAccountService;
     private final GoogleMapperDecorator googleMapper;
@@ -34,13 +33,13 @@ public class GoogleMeetingService implements MeetingService {
 
     @Override
     @Transactional
-    public MeetingDTO createMeeting(MeetingDTO meetingDTO) {
+    public MeetingDTO handleCreate(MeetingDTO meetingDTO) {
         GoogleAccountDTO googleAccount = googleAccountService.findActiveAccount();
         CalendarEventDTO calendarEvent = googleMapper.toCalendarEventDTO(meetingDTO,googleAccount,true);
         CalendarEventDTO response = calendarClientService.scheduleMeeting(calendarEvent);
         meetingDTO.setEventId(response.getEventId());
         meetingDTO.setProviderAccount(ProviderAccountDTO.builder().id(googleAccount.getId()).build());
-        return meetingManagerService.saveMeeting(meetingDTO);
+        return meetingDTO;
     }
     @Transactional
     public void addMeetingToCalendar(MeetingDTO meetingDTO){
@@ -55,18 +54,19 @@ public class GoogleMeetingService implements MeetingService {
                 googleAccountService.findActiveAccount()));
     }
     @Override
-    public MeetingDTO updateMeeting(MeetingDTO meetingDTO) {
-//        calendarClientService.updateMeeting(googleMapper.toCalendarEventDTO(meetingDTO,
-//                googleAccountService.findActiveAccount(),true));
-        return meetingManagerService.updateMeeting(meetingDTO);
+    @Transactional
+    public MeetingDTO handleUpdate(MeetingDTO meetingDTO) {
+        updateCalendarMeeting(meetingDTO,true);
+        return meetingDTO;
     }
-    public void updateCalendarMeeting(MeetingDTO meetingDTO){
+    @Transactional
+    public void updateCalendarMeeting(MeetingDTO meetingDTO,boolean withMeet){
         calendarClientService.updateMeeting(googleMapper.toCalendarEventDTO(meetingDTO,
-                googleAccountService.findActiveAccount(),false));
+                googleAccountService.findActiveAccount(),withMeet));
     }
 
     @Override
-    public MeetingDTO cancelMeeting(MeetingDTO meetingDTO) {
+    public MeetingDTO handleCancel(MeetingDTO meetingDTO) {
         return null;
     }
 
@@ -80,10 +80,4 @@ public class GoogleMeetingService implements MeetingService {
         return GOOGLE;
     }
 
-    @Override
-    @Transactional
-    public SlotRequestDTO handleRequestApproval(SlotRequestDTO slotRequestDTO, boolean isApproved) {
-//        meetingManagerService
-        return null;
-    }
 }

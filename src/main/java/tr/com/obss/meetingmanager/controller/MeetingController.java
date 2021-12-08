@@ -33,7 +33,7 @@ private final SlotRequestService slotRequestService;
     @ResponseBody
     public MeetingDTO createMeeting(
            @Valid @RequestBody MeetingDTO meetingDTO) {
-        return handlerFactory.findStrategy(meetingDTO.getMeetingProvider().getMeetingProviderType()).createMeeting(meetingDTO);
+        return meetingManagerService.createMeeting(meetingDTO);
     }
     @PostMapping("/meeting-slot-request")
     @ResponseBody
@@ -58,15 +58,15 @@ private final SlotRequestService slotRequestService;
     @GetMapping("/meeting/{id}")
     @ResponseBody
     public MeetingDTO getMeetingById(@PathVariable String id){
-        return meetingManagerService.findById(id);
+        return meetingManagerService.findMeetingById(id);
     }
 
     @PutMapping("/meeting/{id}")
     @ResponseBody
     public MeetingDTO updateMeeting(@RequestBody MeetingDTO meetingDTO,
                                                 @PathVariable String id) {
-        //TODO implement here
-        return handlerFactory.findStrategy(meetingDTO.getMeetingProvider().getMeetingProviderType()).updateMeeting(meetingDTO);
+        //TODO delete id
+        return meetingManagerService.updateMeeting(meetingDTO);
     }
     //TODO endpointi düzelt
     @GetMapping("/meetings")

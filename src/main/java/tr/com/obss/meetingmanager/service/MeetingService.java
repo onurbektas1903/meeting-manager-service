@@ -7,10 +7,9 @@ import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 import java.util.List;
 
 public interface MeetingService {
-    MeetingDTO createMeeting(MeetingDTO meetingDTO);
-    MeetingDTO updateMeeting(MeetingDTO meetingDTO);
-    MeetingDTO cancelMeeting(MeetingDTO meetingDTO);
+    MeetingDTO handleCreate(MeetingDTO meetingDTO);
+    MeetingDTO handleUpdate(MeetingDTO meetingDTO);
+    MeetingDTO handleCancel(MeetingDTO meetingDTO);
     List<MeetingDTO> listMeetings();
     MeetingProviderTypeEnum getStrategyName();
-    SlotRequestDTO handleRequestApproval(SlotRequestDTO slotRequestDTO, boolean isApproved);
 }

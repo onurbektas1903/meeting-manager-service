@@ -6,6 +6,7 @@ import tr.com.obss.meetingmanager.dto.MeetingDTO;
 import tr.com.obss.meetingmanager.dto.ProviderAccountDTO;
 import tr.com.obss.meetingmanager.dto.SlotRequestDTO;
 import tr.com.obss.meetingmanager.dto.zoom.ZoomAccountDTO;
+import tr.com.obss.meetingmanager.dto.zoom.ZoomMeetingObjectDTO;
 import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 import tr.com.obss.meetingmanager.feigns.ZoomServiceClient;
 import tr.com.obss.meetingmanager.mapper.zoom.ZoomMapperDecorator;
@@ -23,30 +24,34 @@ import static tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum.ZOOM;
 public class ZoomMeetingService implements MeetingService {
     private final ZoomAccountService zoomAccountService;
     private final ZoomServiceClient zoomServiceClient;
-    private final MeetingManagerService meetingManagerService;
     private final GoogleMeetingService googleMeetingService;
     private final ZoomMapperDecorator zoomMapper;
     @Override
-    public MeetingDTO createMeeting(MeetingDTO meetingDTO) {
+    @Transactional
+    public MeetingDTO handleCreate(MeetingDTO meetingDTO) {
             ZoomAccountDTO zoomAccount = zoomAccountService.findSuitableAccount(meetingDTO.getStart(), meetingDTO.getEnd(),
                 meetingDTO.getMeetingProvider());
 
-//        ZoomMeetingObjectDTO zoomResponse = zoomServiceClient.createMeeting(zoomMapper.toZoomMeetObject(meetingDTO,zoomAccount));
-//        meetingDTO.setMeetingURL(zoomResponse.getJoin_url());
-//        googleMeetingService.addMeetingToCalendar(meetingDTO);
+        ZoomMeetingObjectDTO zoomResponse = zoomServiceClient.createMeeting(zoomMapper.toZoomMeetObject(meetingDTO,zoomAccount));
+        meetingDTO.setMeetingURL(zoomResponse.getJoin_url());
+        meetingDTO.setEventId(zoomResponse.getId());
+        googleMeetingService.addMeetingToCalendar(meetingDTO);
         meetingDTO.setProviderAccount(ProviderAccountDTO.builder().id(zoomAccount.getId()).build());
-       return meetingManagerService.saveMeeting(meetingDTO);
+       return meetingDTO;
     }
 
 
     @Override
-    public MeetingDTO updateMeeting(MeetingDTO meetingDTO) {
-        googleMeetingService.updateCalendarMeeting(meetingDTO);
-        return meetingManagerService.updateMeeting(meetingDTO);
+    @Transactional
+    public MeetingDTO handleUpdate(MeetingDTO meetingDTO) {
+        // update zoom service update
+        googleMeetingService.updateCalendarMeeting(meetingDTO,false);
+        return meetingDTO;
     }
 
     @Override
-    public MeetingDTO cancelMeeting(MeetingDTO meetingDTO) {
+    @Transactional
+    public MeetingDTO handleCancel(MeetingDTO meetingDTO) {
         return null;
     }
 
@@ -60,9 +65,4 @@ public class ZoomMeetingService implements MeetingService {
         return ZOOM;
     }
 
-    @Override
-    @Transactional
-    public SlotRequestDTO handleRequestApproval(SlotRequestDTO slotRequestDTO, boolean isApproved) {
-        return null;
-    }
 }
