@@ -4,24 +4,18 @@ import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.Where;
 import tr.com.obss.meetingmanager.audit.AuditableEntity;
 import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import java.util.HashMap;
-import java.util.List;
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
@@ -42,10 +36,13 @@ public class ProviderAccount extends AuditableEntity {
     @Column(columnDefinition = "jsonb")
     private Map<String,String> accountDetails;
     private Boolean isActive;
+    @NotNull
+    private String babos;
 
-    public ProviderAccount(String applicationName, String accountMail,
+    public ProviderAccount(String id,String applicationName, String accountMail,
                            Object accountDetails,
                            Boolean isActive) {
+        this.setId(id);
         this.applicationName = applicationName;
         this.accountMail = accountMail;
         this.accountDetails = (Map<String, String>) accountDetails;

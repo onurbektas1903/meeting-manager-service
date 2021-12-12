@@ -3,19 +3,17 @@ package tr.com.obss.meetingmanager.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import tr.com.obss.meetingmanager.exception.NotFoundException;
 import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
 import tr.com.obss.meetingmanager.entity.ProviderAccount;
 import tr.com.obss.meetingmanager.exception.MeetingOccupiedException;
-import tr.com.obss.meetingmanager.exception.NotFoundException;
 import tr.com.obss.meetingmanager.repository.ProviderAccountRepository;
+import tr.com.obss.meetingmanager.enums.ConferenceProviderTypeEnum;
 
 import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-
-import static tr.com.obss.meetingmanager.enums.ConferenceProviderTypeEnum.POOL;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -24,7 +22,7 @@ public class ProviderAccountManagerService {
     private final ProviderAccountRepository repository;
 
     public ProviderAccount getSuitableAccount(long startDate, long endDate, MeetingProviderDTO providerDTO){
-        return providerDTO.getConferenceType() == POOL ?
+        return providerDTO.getConferenceType() == ConferenceProviderTypeEnum.POOL ?
                 findFreeAccountsForGivenDateRange(startDate, endDate, providerDTO) :
                 findActiveAccountByProviderId(providerDTO.getId());
     }

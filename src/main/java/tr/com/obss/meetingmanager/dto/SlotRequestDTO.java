@@ -1,18 +1,10 @@
 package tr.com.obss.meetingmanager.dto;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Where;
-import tr.com.obss.meetingmanager.audit.BaseEntity;
-import tr.com.obss.meetingmanager.entity.Meeting;
 import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 import tr.com.obss.meetingmanager.enums.SlotRequestStatusEnum;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 
@@ -34,4 +26,5 @@ public class SlotRequestDTO implements Serializable {
     private MeetingProviderTypeEnum type;
     private String meetingId;
     private SlotRequestStatusEnum requestStatus;
+    private String meetingLink;
 }

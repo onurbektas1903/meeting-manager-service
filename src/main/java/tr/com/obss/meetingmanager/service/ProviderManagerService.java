@@ -2,15 +2,15 @@ package tr.com.obss.meetingmanager.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
 import tr.com.obss.meetingmanager.dto.ProviderAccountDTO;
 import tr.com.obss.meetingmanager.entity.MeetingProvider;
 import tr.com.obss.meetingmanager.entity.ProviderAccount;
 import tr.com.obss.meetingmanager.exception.NotFoundException;
-import tr.com.obss.meetingmanager.mapper.meeting.MeetingProviderMapper;
 import tr.com.obss.meetingmanager.repository.MeetingProviderRepository;
+import tr.com.obss.meetingmanager.mapper.meeting.MeetingProviderMapper;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -24,6 +24,7 @@ public class ProviderManagerService {
     private final MeetingProviderRepository repository;
     private final ProviderAccountManagerService accountManagerService;
     @Transactional
+//    @Transactional("dstm")
     public MeetingProviderDTO saveMeetingProvider(MeetingProviderDTO meetingProviderDTO) {
         Set<String> accounts =
                 meetingProviderDTO.getProviderAccounts().parallelStream()
@@ -49,7 +50,7 @@ public class ProviderManagerService {
     public MeetingProviderDTO deleteMeetingProvider(MeetingProviderDTO meetingProviderDTO) {
         return null;
     }
-
+    @Transactional
     public List<MeetingProviderDTO> listMeetingProviders() {
         return providerMapper.toDTOList( repository.findAll());
         }

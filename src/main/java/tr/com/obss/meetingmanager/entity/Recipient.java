@@ -24,10 +24,4 @@ public class Recipient extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "meeting_id", nullable = false)
     private Meeting meeting;
-
-    public Recipient(String name, Boolean emailReceived, Meeting meeting) {
-        this.name = name;
-        this.emailReceived = emailReceived;
-        this.meeting = meeting;
-    }
 }

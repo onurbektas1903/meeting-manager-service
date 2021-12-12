@@ -4,22 +4,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tr.com.obss.meetingmanager.dto.MeetingDTO;
-import tr.com.obss.meetingmanager.dto.SlotRequestDTO;
 import tr.com.obss.meetingmanager.entity.SlotRequest;
+import tr.com.obss.meetingmanager.enums.SlotRequestStatusEnum;
 import tr.com.obss.meetingmanager.exception.BusinessValidationException;
 import tr.com.obss.meetingmanager.factory.MeetHandlerFactory;
-import tr.com.obss.meetingmanager.mapper.SlotRequestMapper;
 import tr.com.obss.meetingmanager.repository.SlotRequestRepository;
 import tr.com.obss.meetingmanager.service.google.GoogleMeetingService;
+import tr.com.obss.meetingmanager.dto.SlotRequestDTO;
+import tr.com.obss.meetingmanager.mapper.SlotRequestMapper;
 
 import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-
-import static tr.com.obss.meetingmanager.enums.SlotRequestStatusEnum.APPROVED;
-import static tr.com.obss.meetingmanager.enums.SlotRequestStatusEnum.REJECTED;
 
 @Service
 @Slf4j
@@ -57,13 +55,13 @@ public class SlotRequestService {
       meetingDTO.setStart(slotRequestDTO.getStartDate());
       meetingDTO.setEnd(slotRequestDTO.getEndDate());
 
-      slotRequestDTO.setRequestStatus(APPROVED);
+      slotRequestDTO.setRequestStatus(SlotRequestStatusEnum.APPROVED);
       handlerFactory
           .findStrategy(meetingDTO.getMeetingProvider().getMeetingProviderType())
           .handleUpdate(meetingDTO);
       return mapper.toDTO(repository.save(mapper.toEntity(slotRequestDTO)));
     } else {
-      slotRequestDTO.setRequestStatus(REJECTED);
+      slotRequestDTO.setRequestStatus(SlotRequestStatusEnum.REJECTED);
       return mapper.toDTO(repository.save(mapper.toEntity(slotRequestDTO)));
     }
   }

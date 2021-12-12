@@ -1,21 +1,22 @@
 package tr.com.obss.meetingmanager.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import tr.com.obss.meetingmanager.entity.ProviderAccount;
 import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
+@Repository
 public interface ProviderAccountRepository extends JpaRepository<ProviderAccount, String> {
 
     Optional<ProviderAccount> findByIsActiveAndMeetingProviderType(Boolean isActive,MeetingProviderTypeEnum type);
     @Query(
             "select new tr.com.obss.meetingmanager.entity.ProviderAccount("
-                    + " applicationName,accountMail,accountDetails,isActive)"
+                    + "id, applicationName,accountMail,accountDetails,isActive)"
                     + " from ProviderAccount "
                     + " where meetingProvider.id = ?3 and id not in "
                     + " ("
@@ -34,4 +35,8 @@ public interface ProviderAccountRepository extends JpaRepository<ProviderAccount
     List<ProviderAccount> findAllByMeetingProviderTypeAndIsActive(MeetingProviderTypeEnum type,boolean isActive);
 
      Optional<List<ProviderAccount>> findAllByIdIn(Set<String> ids);
-}
+
+     @Override
+     @Transactional
+     <S extends ProviderAccount> S save(S entity);
+ }

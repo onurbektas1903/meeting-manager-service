@@ -8,10 +8,9 @@ import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
 import tr.com.obss.meetingmanager.dto.ProviderAccountDTO;
 import tr.com.obss.meetingmanager.entity.MeetingProvider;
 import tr.com.obss.meetingmanager.entity.ProviderAccount;
-import tr.com.obss.meetingmanager.mapper.google.GoogleMapperDecorator;
 
 import java.util.List;
-import java.util.UUID;
+
 @org.mapstruct.Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 @DecoratedWith(MeetingProviderDecorator.class)
 public interface MeetingProviderMapper {

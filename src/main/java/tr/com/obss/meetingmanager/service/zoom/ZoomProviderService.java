@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
 import tr.com.obss.meetingmanager.dto.zoom.ZoomSettingsDTO;
+import tr.com.obss.meetingmanager.service.ProviderService;
 import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 import tr.com.obss.meetingmanager.service.ProviderManagerService;
-import tr.com.obss.meetingmanager.service.ProviderService;
 
 import javax.transaction.Transactional;
 

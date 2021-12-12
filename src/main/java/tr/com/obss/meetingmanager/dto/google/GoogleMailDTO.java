@@ -18,5 +18,6 @@ public class GoogleMailDTO implements Serializable {
     private String recipientMail;
     private String body;
     private GoogleAccountDTO account;
+    private String meetingLink;
 }
 

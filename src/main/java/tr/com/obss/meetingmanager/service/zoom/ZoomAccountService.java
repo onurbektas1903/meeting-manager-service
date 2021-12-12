@@ -3,10 +3,9 @@ package tr.com.obss.meetingmanager.service.zoom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
-import tr.com.obss.meetingmanager.dto.google.GoogleAccountDTO;
-import tr.com.obss.meetingmanager.dto.zoom.ZoomAccountDTO;
 import tr.com.obss.meetingmanager.dto.zoom.ZoomAccountDTO;
 import tr.com.obss.meetingmanager.entity.ProviderAccount;
+import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 import tr.com.obss.meetingmanager.exception.NotFoundException;
 import tr.com.obss.meetingmanager.mapper.zoom.ZoomMapper;
 import tr.com.obss.meetingmanager.repository.ProviderAccountRepository;
@@ -15,9 +14,6 @@ import tr.com.obss.meetingmanager.service.ProviderAccountManagerService;
 import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.List;
-
-import static tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum.GOOGLE;
-import static tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum.ZOOM;
 
 @Service
 @RequiredArgsConstructor
@@ -33,10 +29,10 @@ public class ZoomAccountService {
         return mapper.toDTO(accountManager.getSuitableAccount(start, end, provider));
     }
     public List<ZoomAccountDTO> getAllActiveAccounts(){
-        return mapper.toDTOList(repository.findAllByMeetingProviderTypeAndIsActive(ZOOM,true));
+        return mapper.toDTOList(repository.findAllByMeetingProviderTypeAndIsActive(MeetingProviderTypeEnum.ZOOM,true));
     }
     public List<ZoomAccountDTO> getAll(){
-        return mapper.toDTOList(repository.findAllByMeetingProviderType(ZOOM));
+        return mapper.toDTOList(repository.findAllByMeetingProviderType(MeetingProviderTypeEnum.ZOOM));
     }
 
     public ZoomAccountDTO findById(String id) {

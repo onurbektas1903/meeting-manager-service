@@ -3,7 +3,6 @@ package tr.com.obss.meetingmanager.dto.google;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import tr.com.obss.meetingmanager.dto.ProviderAccountDTO;
 
 import javax.validation.constraints.NotEmpty;
 

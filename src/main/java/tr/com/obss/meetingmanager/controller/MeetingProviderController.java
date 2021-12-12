@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
 import tr.com.obss.meetingmanager.factory.MeetProviderHandlerFactory;
-import tr.com.obss.meetingmanager.service.ProviderManagerService;
 import tr.com.obss.meetingmanager.service.google.GoogleProviderService;
+import tr.com.obss.meetingmanager.service.ProviderManagerService;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -43,6 +44,7 @@ public class MeetingProviderController {
         .findStrategy(meetingDTO.getMeetingProviderType())
         .updateMeetingProvider(meetingDTO,id);
   }
+
   @GetMapping("/provider/{id}")
   @ResponseBody
   public MeetingProviderDTO getProviderById(@PathVariable String id){

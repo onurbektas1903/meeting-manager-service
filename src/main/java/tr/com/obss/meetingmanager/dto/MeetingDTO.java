@@ -3,7 +3,6 @@ package tr.com.obss.meetingmanager.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import tr.com.obss.meetingmanager.entity.SlotRequest;
 import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 
 import javax.validation.constraints.NotBlank;
@@ -28,9 +27,12 @@ public class MeetingDTO implements Serializable {
     private String organizer;
     private String meetingURL;
     private List<RecipientDTO> recipients;
+    private List<SlotRequestDTO> slotRequests;
     private MeetingProviderTypeEnum meetingProviderType;
     @NotNull(message = "meetingProvider is mandatory")
     private  MeetingProviderDTO meetingProvider;
     private ProviderAccountDTO providerAccount;
+    private String calendarEventId;
     private String eventId;
+
 }

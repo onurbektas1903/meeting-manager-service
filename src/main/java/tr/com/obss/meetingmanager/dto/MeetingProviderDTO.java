@@ -2,7 +2,6 @@ package tr.com.obss.meetingmanager.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 import tr.com.obss.meetingmanager.enums.ConferenceProviderTypeEnum;
 import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 

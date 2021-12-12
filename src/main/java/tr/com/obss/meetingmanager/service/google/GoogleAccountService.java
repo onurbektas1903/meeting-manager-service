@@ -1,15 +1,23 @@
 package tr.com.obss.meetingmanager.service.google;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import tr.com.common.dto.DomainMessage;
+import tr.com.common.enums.ActionTypeEnum;
+import tr.com.common.properties.ApplicationKafkaTopics;
+import tr.com.obss.meetingmanager.exception.NotFoundException;
+import tr.com.obss.meetingmanager.mapper.google.GoogleMapper;
 import tr.com.obss.meetingmanager.dto.google.GoogleAccountDTO;
 import tr.com.obss.meetingmanager.entity.ProviderAccount;
-import tr.com.obss.meetingmanager.exception.NotFoundException;
 import tr.com.obss.meetingmanager.exception.NotUniqueException;
 import tr.com.obss.meetingmanager.feigns.GoogleCalendarServiceClient;
-import tr.com.obss.meetingmanager.mapper.google.GoogleMapper;
 import tr.com.obss.meetingmanager.repository.ProviderAccountRepository;
+import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
+import tr.com.obss.meetingmanager.sender.KafkaMessageSender;
 
 import java.util.Collections;
 import java.util.List;

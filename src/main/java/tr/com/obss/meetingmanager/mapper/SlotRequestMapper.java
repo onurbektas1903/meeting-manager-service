@@ -1,7 +1,6 @@
 package tr.com.obss.meetingmanager.mapper;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import tr.com.obss.meetingmanager.dto.SlotRequestDTO;
 import tr.com.obss.meetingmanager.entity.SlotRequest;
 

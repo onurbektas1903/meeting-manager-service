@@ -18,50 +18,66 @@ import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
 import java.util.List;
 
-
 @EqualsAndHashCode(callSuper = true)
 @Data
+@SQLDelete(sql = "UPDATE meeting SET deleted = true WHERE id=?")
 @Where(clause = "deleted = false")
 @NoArgsConstructor
 @Entity
 @NamedEntityGraph(
-        name = "account-entity-graph",
-        attributeNodes = {
-                @NamedAttributeNode(value = "providerAccount", subgraph = "providerAccount-subgraph"),
-        },
-        subgraphs = {
-                @NamedSubgraph(
-                        name = "providerAccount-subgraph",
-                        attributeNodes = {
-                                @NamedAttributeNode("meetingProvider")
-                        }
-                )
-        }
-)
+    name = "account-entity-graph",
+    attributeNodes = {
+      @NamedAttributeNode(value = "providerAccount", subgraph = "providerAccount-subgraph"),
+    },
+    subgraphs = {
+      @NamedSubgraph(
+          name = "providerAccount-subgraph",
+          attributeNodes = {@NamedAttributeNode("meetingProvider")})
+    })
 public class Meeting extends BaseEntity {
 
-    private static final long serialVersionUID = -6694299942650744346L;
-    private String title;
-    private long startDate;
-    private long endDate;
-    private String description;
-    private String organizer;
-    private String meetingURL;
-    private String eventId;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "meeting")
-    @Where(clause = "deleted = false")
-    @SQLDelete(sql = "UPDATE Recipient SET deleted = true WHERE id = ?")
-    private List<Recipient> recipients;
+  private static final long serialVersionUID = -6694299942650744346L;
+  private String title;
+  private long startDate;
+  private long endDate;
+  private String description;
+  private String organizer;
+  private String meetingURL;
+  private String calendarEventId;
+  private String eventId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "provider_account_id", nullable = false)
-    private ProviderAccount providerAccount;
+  @OneToMany(
+      cascade = CascadeType.ALL,
+      fetch = FetchType.LAZY,
+      mappedBy = "meeting",
+      orphanRemoval = true)
+  @Where(clause = "deleted = false")
+  @SQLDelete(sql = "UPDATE Recipient SET deleted = true WHERE id = ?")
+  private List<Recipient> recipients;
 
-    public Meeting(String id,String title, long startDate, long endDate, String organizer) {
-        setId(id);
-        this.title = title;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.organizer = organizer;
-    }
+  @OneToMany(
+      cascade = CascadeType.ALL,
+      fetch = FetchType.LAZY,
+      mappedBy = "meeting",
+      orphanRemoval = true)
+  @Where(clause = "deleted = false")
+  @SQLDelete(sql = "UPDATE SlotRequest SET deleted = true WHERE id = ?")
+  private List<SlotRequest> slotRequests;
+
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "provider_account_id", nullable = false)
+  private ProviderAccount providerAccount;
+
+  public Meeting(String id, String title, long startDate, long endDate, String organizer) {
+    setId(id);
+    this.title = title;
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.organizer = organizer;
+  }
+
+  public void addSlotRequest(SlotRequest slotRequest) {
+    this.slotRequests.add(slotRequest);
+    slotRequest.setMeeting(this);
+  }
 }

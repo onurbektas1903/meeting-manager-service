@@ -2,19 +2,17 @@ package tr.com.obss.meetingmanager.service.zoom;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import tr.com.obss.meetingmanager.dto.zoom.ZoomMeetingObjectDTO;
+import tr.com.obss.meetingmanager.mapper.zoom.ZoomMapperDecorator;
+import tr.com.obss.meetingmanager.service.google.GoogleMeetingService;
 import tr.com.obss.meetingmanager.dto.MeetingDTO;
 import tr.com.obss.meetingmanager.dto.ProviderAccountDTO;
-import tr.com.obss.meetingmanager.dto.SlotRequestDTO;
 import tr.com.obss.meetingmanager.dto.zoom.ZoomAccountDTO;
-import tr.com.obss.meetingmanager.dto.zoom.ZoomMeetingObjectDTO;
 import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 import tr.com.obss.meetingmanager.feigns.ZoomServiceClient;
-import tr.com.obss.meetingmanager.mapper.zoom.ZoomMapperDecorator;
-import tr.com.obss.meetingmanager.service.MeetingManagerService;
 import tr.com.obss.meetingmanager.service.MeetingService;
-import tr.com.obss.meetingmanager.service.google.GoogleMeetingService;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 import static tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum.ZOOM;
@@ -35,11 +33,11 @@ public class ZoomMeetingService implements MeetingService {
         ZoomMeetingObjectDTO zoomResponse = zoomServiceClient.createMeeting(zoomMapper.toZoomMeetObject(meetingDTO,zoomAccount));
         meetingDTO.setMeetingURL(zoomResponse.getJoin_url());
         meetingDTO.setEventId(zoomResponse.getId());
+        meetingDTO.setDescription(meetingDTO.getDescription() + " link: "+ zoomResponse.getJoin_url());
         googleMeetingService.addMeetingToCalendar(meetingDTO);
         meetingDTO.setProviderAccount(ProviderAccountDTO.builder().id(zoomAccount.getId()).build());
        return meetingDTO;
     }
-
 
     @Override
     @Transactional
@@ -51,8 +49,8 @@ public class ZoomMeetingService implements MeetingService {
 
     @Override
     @Transactional
-    public MeetingDTO handleCancel(MeetingDTO meetingDTO) {
-        return null;
+    public void handleCancel(MeetingDTO meetingDTO) {
+        //TODO handle for zoom
     }
 
     @Override

@@ -5,22 +5,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
-import tr.com.obss.meetingmanager.dto.MeetingDTO;
-import tr.com.obss.meetingmanager.dto.ProviderAccountDTO;
 import tr.com.obss.meetingmanager.dto.RecipientDTO;
+import tr.com.obss.meetingmanager.dto.google.GoogleAccountDetails;
+import tr.com.obss.meetingmanager.dto.MeetingDTO;
 import tr.com.obss.meetingmanager.dto.SlotRequestDTO;
 import tr.com.obss.meetingmanager.dto.google.CalendarEventDTO;
+import tr.com.obss.meetingmanager.dto.google.DeleteEventDTO;
 import tr.com.obss.meetingmanager.dto.google.GoogleAccountDTO;
-import tr.com.obss.meetingmanager.dto.google.GoogleAccountDetails;
 import tr.com.obss.meetingmanager.dto.google.GoogleMailDTO;
 import tr.com.obss.meetingmanager.entity.ProviderAccount;
+import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum.GOOGLE;
 
 @Primary
 @Slf4j
@@ -43,7 +42,7 @@ public class GoogleMapperDecorator implements GoogleMapper {
     @Override
     public ProviderAccount toEntity(GoogleAccountDTO googleAccountDTO) {
         ProviderAccount providerAccount = delegate.toEntity(googleAccountDTO);
-        providerAccount.setMeetingProviderType(GOOGLE);
+        providerAccount.setMeetingProviderType(MeetingProviderTypeEnum.GOOGLE);
         providerAccount.setAccountDetails(objectMapper.convertValue(googleAccountDTO.getAccountDetails(),Map.class));
         if(providerAccount.getId() == null || providerAccount.getId().isEmpty() ){
             providerAccount.setId(UUID.randomUUID().toString());
@@ -63,15 +62,22 @@ public class GoogleMapperDecorator implements GoogleMapper {
                         .body(slotRequestDTO.getDescription())
                         .senderMail(slotRequestDTO.getCreator())
                         .recipientMail(slotRequestDTO.getOrganizer())
+                        .meetingLink(slotRequestDTO.getMeetingLink())
                         .account(account)
                         .build();
+    }
+    public DeleteEventDTO toDeleteEventDTO(GoogleAccountDTO googleAccountDTO, MeetingDTO meetingDTO){
+       return DeleteEventDTO.builder()
+                 .account(googleAccountDTO)
+                 .creator(meetingDTO.getOrganizer())
+                 .build();
     }
 
     public CalendarEventDTO toCalendarEventDTO(MeetingDTO meetingDTO,GoogleAccountDTO googleAccount,boolean withMeet){
 
         //TODO googleEventSettings i convertle ve setle
 //        ProviderAccountDTO providerAccount = meetingDTO.getProviderAccountDTO();
-
+        meetingDTO.setCalendarEventId(UUID.randomUUID().toString());
         return CalendarEventDTO.builder()
                 .meetingUrl(meetingDTO.getMeetingURL())
                 .start(meetingDTO.getStart())
@@ -79,7 +85,7 @@ public class GoogleMapperDecorator implements GoogleMapper {
                 .end(meetingDTO.getEnd())
                 .summary(meetingDTO.getTitle())
                 .description(meetingDTO.getDescription())
-                .eventId(meetingDTO.getEventId())
+                .eventId(meetingDTO.getCalendarEventId())
                 .account(googleAccount)
                 .createMeeting(withMeet)
                 .eventAttendees(meetingDTO.getRecipients()

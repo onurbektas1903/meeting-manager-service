@@ -3,28 +3,28 @@ package tr.com.obss.meetingmanager.mapper.zoom;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.Type;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
-import tr.com.obss.meetingmanager.dto.MeetingDTO;
-import tr.com.obss.meetingmanager.dto.zoom.ZoomAccountDTO;
 import tr.com.obss.meetingmanager.dto.zoom.ZoomAccountDetails;
 import tr.com.obss.meetingmanager.dto.zoom.ZoomMeetingObjectDTO;
+import tr.com.obss.meetingmanager.util.TimeUtil;
+import tr.com.obss.meetingmanager.dto.MeetingDTO;
+import tr.com.obss.meetingmanager.dto.zoom.ZoomAccountDTO;
 import tr.com.obss.meetingmanager.entity.ProviderAccount;
+import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum.ZOOM;
-
 @Primary
 @Slf4j
 public class ZoomMapperDecorator implements ZoomMapper {
     TypeReference<HashMap<String,String>> typeRef
-            = new TypeReference<HashMap<String,String>>() {};
+            = new TypeReference<>() {
+    };
     private ZoomMapper delegate;
     private final ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
@@ -43,7 +43,7 @@ public class ZoomMapperDecorator implements ZoomMapper {
     @Override
     public ProviderAccount toEntity(ZoomAccountDTO zoomAccountDTO) {
         ProviderAccount providerAccount = delegate.toEntity(zoomAccountDTO);
-        providerAccount.setMeetingProviderType(ZOOM);
+        providerAccount.setMeetingProviderType(MeetingProviderTypeEnum.ZOOM);
         if(providerAccount.getId() == null || providerAccount.getId().isEmpty() ){
             providerAccount.setId(UUID.randomUUID().toString());
         }
@@ -56,12 +56,14 @@ public class ZoomMapperDecorator implements ZoomMapper {
         return accounts.parallelStream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public  ZoomMeetingObjectDTO toZoomMeetObject(MeetingDTO meetingDTO,ZoomAccountDTO zoomAccount){
+    public ZoomMeetingObjectDTO toZoomMeetObject(MeetingDTO meetingDTO, ZoomAccountDTO zoomAccount){
+
         return   ZoomMeetingObjectDTO.builder()
                 .start_time(Long.toString(meetingDTO.getStart()))
                 .topic(meetingDTO.getTitle())
-                .duration(Integer.valueOf(Long.toString((meetingDTO.getEnd()-meetingDTO.getStart())/100000)))
-                .schedule_for(meetingDTO.getOrganizer())
+                .duration(TimeUtil.findDiffrenceAsMinutes( meetingDTO.getStart(),meetingDTO.getEnd()))
+                .host_email(zoomAccount.getAccountMail())
+                .schedule_for(zoomAccount.getAccountMail())
                 .account(zoomAccount).build();
     }
 }

@@ -6,8 +6,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFuture;
-import tr.com.obss.dto.DomainMessage;
-import tr.com.obss.enums.ActionTypeEnum;
+import tr.com.common.dto.DomainMessage;
+import tr.com.common.enums.ActionTypeEnum;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +16,7 @@ public class KafkaMessageSender {
 
     public <T> ListenableFuture<SendResult<String, DomainMessage>> send(
             String topic, T data, ActionTypeEnum actionType) {
+        //TODO fix key
         ProducerRecord<String, DomainMessage> producerRecord =
                 new ProducerRecord<>(topic, "1", new DomainMessage(actionType, data));
         return this.kafkaNotificationTemplate.send(producerRecord);

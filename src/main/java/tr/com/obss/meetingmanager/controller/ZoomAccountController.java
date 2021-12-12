@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import tr.com.obss.meetingmanager.dto.google.GoogleAccountDTO;
-import tr.com.obss.meetingmanager.dto.zoom.ZoomAccountDTO;
 import tr.com.obss.meetingmanager.dto.zoom.ZoomAccountDTO;
 import tr.com.obss.meetingmanager.service.zoom.ZoomAccountService;
 
