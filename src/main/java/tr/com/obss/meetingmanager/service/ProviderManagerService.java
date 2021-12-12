@@ -49,7 +49,7 @@ public class ProviderManagerService {
     public MeetingProviderDTO deleteMeetingProvider(MeetingProviderDTO meetingProviderDTO) {
         return null;
     }
-    @Transactional
+    @Transactional("ptm")
     public List<MeetingProviderDTO> listMeetingProviders() {
         return providerMapper.toDTOList( repository.findAll());
         }

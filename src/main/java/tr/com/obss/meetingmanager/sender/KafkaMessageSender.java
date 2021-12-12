@@ -5,12 +5,14 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.concurrent.ListenableFuture;
 import tr.com.common.dto.DomainMessage;
 import tr.com.common.enums.ActionTypeEnum;
 
 @Service
 @RequiredArgsConstructor
+@Transactional("ptm")
 public class KafkaMessageSender {
     private final KafkaTemplate<String, DomainMessage> kafkaNotificationTemplate;
 
