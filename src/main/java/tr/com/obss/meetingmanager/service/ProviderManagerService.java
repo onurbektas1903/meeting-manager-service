@@ -23,8 +23,7 @@ public class ProviderManagerService {
     private final MeetingProviderMapper providerMapper;
     private final MeetingProviderRepository repository;
     private final ProviderAccountManagerService accountManagerService;
-    @Transactional
-//    @Transactional("dstm")
+    @Transactional("ptm")
     public MeetingProviderDTO saveMeetingProvider(MeetingProviderDTO meetingProviderDTO) {
         Set<String> accounts =
                 meetingProviderDTO.getProviderAccounts().parallelStream()

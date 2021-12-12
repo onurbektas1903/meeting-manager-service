@@ -3,6 +3,7 @@ package tr.com.obss.meetingmanager.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tr.com.obss.meetingmanager.dto.MeetingDTO;
 import tr.com.obss.meetingmanager.entity.SlotRequest;
 import tr.com.obss.meetingmanager.enums.SlotRequestStatusEnum;
@@ -13,7 +14,6 @@ import tr.com.obss.meetingmanager.service.google.GoogleMeetingService;
 import tr.com.obss.meetingmanager.dto.SlotRequestDTO;
 import tr.com.obss.meetingmanager.mapper.SlotRequestMapper;
 
-import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
