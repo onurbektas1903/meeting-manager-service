@@ -4,13 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
 import tr.com.obss.meetingmanager.dto.zoom.ZoomSettingsDTO;
 import tr.com.obss.meetingmanager.service.ProviderService;
 import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 import tr.com.obss.meetingmanager.service.ProviderManagerService;
 
-import javax.transaction.Transactional;
 
 import static tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum.ZOOM;
 
@@ -21,25 +21,22 @@ public class ZoomProviderService implements ProviderService {
     private final ObjectMapper mapper = new ObjectMapper();
     private final ProviderManagerService providerManagerService;
     @Override
-    @Transactional
+    @Transactional("ptm")
     public MeetingProviderDTO createMeetingProvider(MeetingProviderDTO meetingProviderDTO) {
         //TODO validate
         ZoomSettingsDTO zoomSettings = mapper.convertValue(meetingProviderDTO.getSettings(), ZoomSettingsDTO.class);
         return providerManagerService.saveMeetingProvider(meetingProviderDTO);
     }
-
     @Override
+    @Transactional("ptm")
     public MeetingProviderDTO updateMeetingProvider(MeetingProviderDTO meetingProviderDTO,String id) {
         return null;
     }
 
-    @Override
-    public MeetingProviderDTO makeProviderPassive(MeetingProviderDTO meetingProviderDTO) {
-        return null;
-    }
 
 
     @Override
+    @Transactional("ptm")
     public MeetingProviderTypeEnum getStrategyName() {
         return ZOOM;
     }

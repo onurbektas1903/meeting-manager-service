@@ -2,6 +2,7 @@ package tr.com.obss.meetingmanager.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import tr.com.obss.meetingmanager.service.google.GoogleAccountService;
@@ -17,6 +19,8 @@ import tr.com.obss.meetingmanager.dto.google.GoogleAccountDTO;
 
 import javax.validation.Valid;
 import java.util.List;
+
+import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequiredArgsConstructor
@@ -54,19 +58,20 @@ public class GoogleAccountController {
     return googleAccountService.findById(id);
   }
 
+  @DeleteMapping("/account/{id}")
+  @ResponseBody
+  @ResponseStatus(OK)
+  public void  deleteAccount(@PathVariable String id) {
+     googleAccountService.deleteAccount(id);
+  }
+
   @PutMapping("/account/{id}")
   @ResponseBody
   public GoogleAccountDTO updateGoogleAccount(
-      @RequestBody GoogleAccountDTO googleAccount, @PathVariable String id) {
-    // TODO implement here
-    return null;
+          @Valid @RequestPart("googleAccountDTO") GoogleAccountDTO googleAccount,
+          @RequestPart("file") MultipartFile file,@PathVariable String id) {
+     return googleAccountService.updateGoogleAccount(googleAccount,file,id);
   }
 
-  @PutMapping("/account/active-passive/{id}/{isActive}")
-  @ResponseBody
-  public GoogleAccountDTO makeAccountPassive(
-      @PathVariable String id, @PathVariable boolean isActive) {
-    // TODO implement here
-    return null;
-  }
+
 }

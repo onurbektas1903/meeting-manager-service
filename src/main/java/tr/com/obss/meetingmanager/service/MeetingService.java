@@ -9,6 +9,5 @@ public interface MeetingService {
     MeetingDTO handleCreate(MeetingDTO meetingDTO);
     MeetingDTO handleUpdate(MeetingDTO meetingDTO);
     void handleCancel(MeetingDTO meetingDTO);
-    List<MeetingDTO> listMeetings();
     MeetingProviderTypeEnum getStrategyName();
 }

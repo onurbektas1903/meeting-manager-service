@@ -15,7 +15,6 @@ import tr.com.obss.meetingmanager.factory.MeetProviderHandlerFactory;
 import tr.com.obss.meetingmanager.service.google.GoogleProviderService;
 import tr.com.obss.meetingmanager.service.ProviderManagerService;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -54,9 +53,18 @@ public class MeetingProviderController {
   @GetMapping("providers")
   @ResponseBody
   public List<MeetingProviderDTO> listProviders() {
-    System.out.println("received");
-    return providerManagerService.listMeetingProviders();
+    return providerManagerService.getMeetingProviders();
   }
-
+  @GetMapping("active-providers")
+  @ResponseBody
+  public List<MeetingProviderDTO> listActiveProviders() {
+    return providerManagerService.getActiveProviders();
+  }
+  @PutMapping("/provider/active-passive/{id}/{isActive}")
+  @ResponseBody
+  public MeetingProviderDTO makeAccountPassive(
+          @PathVariable String id, @PathVariable boolean isActive) {
+    return providerManagerService.activateDeactivateProvider(id,isActive);
+  }
 
 }

@@ -36,8 +36,6 @@ public class ProviderAccount extends AuditableEntity {
     @Column(columnDefinition = "jsonb")
     private Map<String,String> accountDetails;
     private Boolean isActive;
-    @NotNull
-    private String babos;
 
     public ProviderAccount(String id,String applicationName, String accountMail,
                            Object accountDetails,

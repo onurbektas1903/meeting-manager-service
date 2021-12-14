@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import tr.com.obss.meetingmanager.dto.MeetingDTO;
+import tr.com.obss.meetingmanager.dto.ProviderAccountDTO;
 import tr.com.obss.meetingmanager.entity.Meeting;
 import tr.com.obss.meetingmanager.entity.ProviderAccount;
 
@@ -41,6 +42,15 @@ public class MeetingMapperDecorator implements MeetingMapper {
   }
 
   @Override
+  public MeetingDTO toDTOWithAccount(Meeting meeting) {
+    MeetingDTO meetingDTO = toDTO(meeting);
+
+    meetingDTO.setProviderAccount(
+        ProviderAccountDTO.builder().id(meeting.getProviderAccount().getId()).build());
+    return meetingDTO;
+  }
+
+  @Override
   public Meeting toEntity(MeetingDTO meetingDTO) {
     Meeting meeting = delegate.toEntity(meetingDTO);
     if (meetingDTO.getId() == null || meetingDTO.getId().isEmpty()) {
@@ -61,7 +71,7 @@ public class MeetingMapperDecorator implements MeetingMapper {
 
   @Override
   public void updateMeeting(MeetingDTO dto, Meeting entity) {
-     delegate.updateMeeting(dto,entity);
+    delegate.updateMeeting(dto, entity);
   }
 
   @Override

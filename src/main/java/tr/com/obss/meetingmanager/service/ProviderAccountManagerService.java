@@ -3,6 +3,7 @@ package tr.com.obss.meetingmanager.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tr.com.obss.meetingmanager.exception.NotFoundException;
 import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
 import tr.com.obss.meetingmanager.entity.ProviderAccount;
@@ -10,7 +11,6 @@ import tr.com.obss.meetingmanager.exception.MeetingOccupiedException;
 import tr.com.obss.meetingmanager.repository.ProviderAccountRepository;
 import tr.com.obss.meetingmanager.enums.ConferenceProviderTypeEnum;
 
-import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +39,7 @@ public class ProviderAccountManagerService {
         }
         return freeAccounts.get(0);
     }
-    @Transactional
+    @Transactional("ptm")
     public List<ProviderAccount> findAccountsByIds( Set<String> accounts){
        return repository.findAllByIdIn(accounts).orElseThrow(()-> new NotFoundException(
                 "Accounts Not Found",Collections.singleton("providerAccounts")));

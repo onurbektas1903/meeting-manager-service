@@ -16,8 +16,6 @@ import tr.com.obss.meetingmanager.feigns.GoogleCalendarServiceClient;
 import tr.com.obss.meetingmanager.service.MeetingService;
 import tr.com.common.properties.ApplicationKafkaTopics;
 
-import java.util.List;
-
 import static tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum.GOOGLE;
 
 @Service
@@ -28,51 +26,48 @@ public class GoogleMeetingService implements MeetingService {
     private final GoogleAccountService googleAccountService;
     private final GoogleMapperDecorator googleMapper;
     private final KafkaMessageSender messageSender;
-
     @Override
-//    @Transactional("dstm")
-    @Transactional
+    @Transactional("ptm")
     public MeetingDTO handleCreate(MeetingDTO meetingDTO) {
         GoogleAccountDTO googleAccount = googleAccountService.findActiveAccount();
         CalendarEventDTO calendarEvent = googleMapper.toCalendarEventDTO(meetingDTO,googleAccount,true);
         CalendarEventDTO response = calendarClientService.scheduleEvent(calendarEvent);
+        meetingDTO.setCalendarEventId(response.getEventId());
         meetingDTO.setMeetingURL(response.getMeetingUrl());
         meetingDTO.setProviderAccount(ProviderAccountDTO.builder().id(googleAccount.getId()).build());
         return meetingDTO;
     }
-//    @Transactional("dstm")
+
+    @Transactional("ptm")
     public void addMeetingToCalendar(MeetingDTO meetingDTO){
         GoogleAccountDTO googleAccount = googleAccountService.findActiveAccount();
         CalendarEventDTO calendarEvent = googleMapper.toCalendarEventDTO(meetingDTO,googleAccount,false);
-        messageSender.sendCreated(topics.getGoogle(),calendarEvent);
+        CalendarEventDTO response = calendarClientService.scheduleEvent(calendarEvent);
+        meetingDTO.setCalendarEventId(response.getEventId());
     }
-//    @Transactional("dstm")
+    @Transactional("ptm")
     public void sendChangeSlotMail(SlotRequestDTO slotRequestDTO){
         calendarClientService.changeSlot(googleMapper.toGoogleMailDTO(slotRequestDTO,
                 googleAccountService.findActiveAccount()));
     }
     @Override
-    @Transactional
+    @Transactional("ptm")
     public MeetingDTO handleUpdate(MeetingDTO meetingDTO) {
         updateCalendarMeeting(meetingDTO,true);
         return meetingDTO;
     }
-    @Transactional
+    @Transactional("ptm")
     public void updateCalendarMeeting(MeetingDTO meetingDTO,boolean withMeet){
         calendarClientService.updateEvent(googleMapper.toCalendarEventDTO(meetingDTO,
                 googleAccountService.findActiveAccount(),withMeet));
     }
 
     @Override
+    @Transactional("ptm")
     public void handleCancel(MeetingDTO meetingDTO) {
         GoogleAccountDTO googleAccount = googleAccountService.findActiveAccount();
         DeleteEventDTO deleteEventDTO = googleMapper.toDeleteEventDTO(googleAccount,meetingDTO);
         calendarClientService.deleteEvent(deleteEventDTO,meetingDTO.getCalendarEventId());
-    }
-
-    @Override
-    public List<MeetingDTO> listMeetings() {
-        return null;
     }
 
     @Override

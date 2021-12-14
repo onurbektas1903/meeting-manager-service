@@ -19,7 +19,7 @@ public class MeetingProviderDTO {
     @NotNull(message = "conferenceType is mandatory")
     private ConferenceProviderTypeEnum conferenceType;
     private List<ProviderAccountDTO> providerAccounts;
-    private boolean isActive;
+    private Boolean isActive;
     private String group;
     @NotNull(message = "meetingProviderType is mandatory")
     private MeetingProviderTypeEnum meetingProviderType;

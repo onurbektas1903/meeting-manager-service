@@ -36,6 +36,9 @@ public interface ProviderAccountRepository extends JpaRepository<ProviderAccount
 
      Optional<List<ProviderAccount>> findAllByIdIn(Set<String> ids);
 
+     Optional<ProviderAccount> findByAccountMailAndMeetingProviderTypeAndIdNot(String accountMail,
+                                                                               MeetingProviderTypeEnum type, String id);
+
      @Override
      @Transactional
      <S extends ProviderAccount> S save(S entity);

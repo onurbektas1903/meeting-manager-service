@@ -2,13 +2,14 @@ package tr.com.obss.meetingmanager.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import tr.com.obss.meetingmanager.enums.SlotRequestStatusEnum;
-import tr.com.obss.meetingmanager.exception.NotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 import tr.com.obss.meetingmanager.dto.MeetingDTO;
 import tr.com.obss.meetingmanager.dto.SlotRequestDTO;
 import tr.com.obss.meetingmanager.entity.Meeting;
 import tr.com.obss.meetingmanager.entity.SlotRequest;
+import tr.com.obss.meetingmanager.enums.SlotRequestStatusEnum;
 import tr.com.obss.meetingmanager.exception.BusinessValidationException;
+import tr.com.obss.meetingmanager.exception.NotFoundException;
 import tr.com.obss.meetingmanager.factory.MeetHandlerFactory;
 import tr.com.obss.meetingmanager.mapper.SlotRequestMapper;
 import tr.com.obss.meetingmanager.mapper.meeting.MeetingMapper;
@@ -16,7 +17,6 @@ import tr.com.obss.meetingmanager.repository.MeetingRepository;
 import tr.com.obss.meetingmanager.repository.SlotRequestRepository;
 import tr.com.obss.meetingmanager.service.google.GoogleMeetingService;
 
-import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -31,7 +31,7 @@ public class MeetingManagerService {
   private final SlotRequestMapper slotRequestMapper;
   private final SlotRequestRepository slotRepository;
   private final GoogleMeetingService googleMeetingService;
-  @Transactional
+  @Transactional("ptm")
   public MeetingDTO createMeeting(MeetingDTO meetingDTO) {
     validate(meetingDTO);
     MeetingDTO createdMeeting =
@@ -42,7 +42,7 @@ public class MeetingManagerService {
     return mapper.toDTO(repository.save(meeting));
   }
 
-  @Transactional
+  @Transactional("ptm")
   public SlotRequestDTO addSlotRequestToMeeting(SlotRequestDTO slotRequestDTO) {
     Meeting meeting = findById(slotRequestDTO.getMeetingId());
     validateSlotRequest(slotRequestDTO, meeting);
@@ -54,10 +54,10 @@ public class MeetingManagerService {
     return slotRequestMapper.toDTO(slotRequestEntity);
   }
 
-  @Transactional
-  public MeetingDTO updateMeeting(MeetingDTO meetingDTO) {
+  @Transactional("ptm")
+  public MeetingDTO updateMeeting(MeetingDTO meetingDTO, String id) {
     validate(meetingDTO);
-    Meeting meeting =findById(meetingDTO.getId());
+    Meeting meeting =findById(id);
     MeetingDTO updatedMeeting =
         handlerFactory
             .findStrategy(meetingDTO.getMeetingProvider().getMeetingProviderType())
@@ -66,7 +66,7 @@ public class MeetingManagerService {
     return mapper.toDTO(repository.save(meeting));
   }
 
-  @Transactional
+  @Transactional("ptm")
   public SlotRequestDTO handleRequestApproval(SlotRequestDTO slotRequestDTO, boolean isApproved) {
     Meeting meeting = findById(slotRequestDTO.getMeetingId());
     SlotRequest slotRequest = findSlotRequestById(slotRequestDTO.getId());
@@ -74,7 +74,7 @@ public class MeetingManagerService {
     if (isApproved) {
       meeting.setStartDate(slotRequestDTO.getStartDate());
       meeting.setEndDate(slotRequestDTO.getEndDate());
-      MeetingDTO meetingDTO = mapper.toDTO(meeting);
+      MeetingDTO meetingDTO = mapper.toDTOWithAccount(meeting);
       handlerFactory
           .findStrategy(meetingDTO.getMeetingProvider().getMeetingProviderType())
           .handleUpdate(meetingDTO);
@@ -93,7 +93,7 @@ public class MeetingManagerService {
             () -> new NotFoundException("Slot Not Found", Collections.singleton("SlotRequest")));
   }
 
-  @Transactional
+  @Transactional("ptm")
   public void updateSlotRequest(
       SlotRequest slotRequest,SlotRequestStatusEnum slotRequestStatus) {
       slotRequest.setRequestStatus(slotRequestStatus);
@@ -105,15 +105,14 @@ public class MeetingManagerService {
     slotRepository.deleteById(slotRequest.getId());
     return slotRequestMapper.toDTO(slotRequest);
   }
-  @Transactional
+  @Transactional("ptm")
   public void deleteMeeting(String id) {
     Meeting meeting = findById(id);
-    handlerFactory.findStrategy(meeting.getProviderAccount().getMeetingProviderType()).handleCancel(mapper.toDTO(meeting));
+    handlerFactory.findStrategy(meeting.getProviderAccount().getMeetingProviderType()).handleCancel(mapper.toDTOWithAccount(meeting));
     repository.deleteById(id);
   }
 
   public List<MeetingDTO> listMeetings(long start, long end) {
-
     return mapper.toDTOList(repository.findMeetingsBetweenStartAndEndDate(start, end));
   }
 

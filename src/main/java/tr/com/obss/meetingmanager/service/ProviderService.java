@@ -6,6 +6,5 @@ import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 public interface ProviderService {
     MeetingProviderDTO createMeetingProvider(MeetingProviderDTO meetingProviderDTO);
     MeetingProviderDTO updateMeetingProvider(MeetingProviderDTO meetingProviderDTO,String id);
-    MeetingProviderDTO makeProviderPassive(MeetingProviderDTO meetingProviderDTO);
     MeetingProviderTypeEnum getStrategyName();
 }

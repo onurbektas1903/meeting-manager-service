@@ -5,12 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
+import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GoogleAccountDetails  {
+public class GoogleAccountDetails implements Serializable {
+    private static final long serialVersionUID = -8829019005566464109L;
     private String adminUserEmail;
-    @NotEmpty(message = "Credentials file cant be empty")
     private String credentialsFileName;
 }

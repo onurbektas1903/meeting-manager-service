@@ -34,33 +34,6 @@ private final SlotRequestService slotRequestService;
            @Valid @RequestBody MeetingDTO meetingDTO) {
         return meetingManagerService.createMeeting(meetingDTO);
     }
-    @PostMapping("/meeting-slot-request")
-    @ResponseBody
-    public SlotRequestDTO createChangeMeetingSlotRequest(
-           @Valid @RequestBody SlotRequestDTO slotRequestDTO) {
-       return meetingManagerService.addSlotRequestToMeeting(slotRequestDTO);
-    }
-
-    @PutMapping("/meeting-slot-request/{isApproved}")
-    @ResponseBody
-    public SlotRequestDTO handleSlotRequestApproval(@RequestBody SlotRequestDTO slotRequest,@PathVariable boolean isApproved) {
-        return meetingManagerService.handleRequestApproval(slotRequest,isApproved);
-    }
-    @DeleteMapping("/meeting-slot-request/{id}")
-    public SlotRequestDTO deleteSlotRequetsById(@PathVariable String id){
-        return meetingManagerService.removeSlotRequest(id);
-    }
-    @DeleteMapping("/meeting/{id}")
-    public void cancelMeeting(@PathVariable String id){
-         meetingManagerService.deleteMeeting(id);
-    }
-
-    @GetMapping("/meeting-slot-requests/{meetingId}")
-    @ResponseBody
-    public List<SlotRequestDTO> getSlotRequestsByMeeting(
-           @Valid @PathVariable String meetingId) {
-       return slotRequestService.getSlotRequestsByMeetingId(meetingId);
-    }
 
     @GetMapping("/meeting/{id}")
     @ResponseBody
@@ -72,15 +45,43 @@ private final SlotRequestService slotRequestService;
     @ResponseBody
     public MeetingDTO updateMeeting(@RequestBody MeetingDTO meetingDTO,
                                                 @PathVariable String id) {
-        //TODO delete id
-        return meetingManagerService.updateMeeting(meetingDTO);
+        return meetingManagerService.updateMeeting(meetingDTO,id);
     }
-    //TODO endpointi düzelt
+
+    @DeleteMapping("/meeting/{id}")
+    public void cancelMeeting(@PathVariable String id){
+        meetingManagerService.deleteMeeting(id);
+    }
+
     @GetMapping("/meetings")
     @ResponseBody
     public List<MeetingDTO> listMeetings(@RequestParam(value = "start") long  start,
                                          @RequestParam(value = "end") long  end) {
         return meetingManagerService.listMeetings(start,end);
+    }
+
+    @PostMapping("/meeting-slot-request")
+    @ResponseBody
+    public SlotRequestDTO createChangeMeetingSlotRequest(
+            @Valid @RequestBody SlotRequestDTO slotRequestDTO) {
+        return meetingManagerService.addSlotRequestToMeeting(slotRequestDTO);
+    }
+
+    @PutMapping("/meeting-slot-request/{isApproved}")
+    @ResponseBody
+    public SlotRequestDTO handleSlotRequestApproval(@RequestBody SlotRequestDTO slotRequest,@PathVariable boolean isApproved) {
+        return meetingManagerService.handleRequestApproval(slotRequest,isApproved);
+    }
+    @DeleteMapping("/meeting-slot-request/{id}")
+    public SlotRequestDTO deleteSlotRequetsById(@PathVariable String id){
+        return meetingManagerService.removeSlotRequest(id);
+    }
+
+    @GetMapping("/meeting-slot-requests/{meetingId}")
+    @ResponseBody
+    public List<SlotRequestDTO> getSlotRequestsByMeeting(
+            @Valid @PathVariable String meetingId) {
+        return slotRequestService.getSlotRequestsByMeetingId(meetingId);
     }
 
 }

@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum.GOOGLE;
+
 @Primary
 @Slf4j
 public class GoogleMapperDecorator implements GoogleMapper {
@@ -42,7 +44,7 @@ public class GoogleMapperDecorator implements GoogleMapper {
     @Override
     public ProviderAccount toEntity(GoogleAccountDTO googleAccountDTO) {
         ProviderAccount providerAccount = delegate.toEntity(googleAccountDTO);
-        providerAccount.setMeetingProviderType(MeetingProviderTypeEnum.GOOGLE);
+        providerAccount.setMeetingProviderType(GOOGLE);
         providerAccount.setAccountDetails(objectMapper.convertValue(googleAccountDTO.getAccountDetails(),Map.class));
         if(providerAccount.getId() == null || providerAccount.getId().isEmpty() ){
             providerAccount.setId(UUID.randomUUID().toString());
@@ -74,17 +76,17 @@ public class GoogleMapperDecorator implements GoogleMapper {
     }
 
     public CalendarEventDTO toCalendarEventDTO(MeetingDTO meetingDTO,GoogleAccountDTO googleAccount,boolean withMeet){
-
+        MeetingProviderTypeEnum type = meetingDTO.getMeetingProvider().getMeetingProviderType();
         //TODO googleEventSettings i convertle ve setle
 //        ProviderAccountDTO providerAccount = meetingDTO.getProviderAccountDTO();
-        meetingDTO.setCalendarEventId(UUID.randomUUID().toString());
         return CalendarEventDTO.builder()
                 .meetingUrl(meetingDTO.getMeetingURL())
                 .start(meetingDTO.getStart())
                 .creator(meetingDTO.getOrganizer())
                 .end(meetingDTO.getEnd())
                 .summary(meetingDTO.getTitle())
-                .description(meetingDTO.getDescription())
+                .description(type == GOOGLE ? meetingDTO.getDescription() : (meetingDTO.getDescription() + " " + meetingDTO.getMeetingURL()))
+                .meetingUrl(meetingDTO.getMeetingURL())
                 .eventId(meetingDTO.getCalendarEventId())
                 .account(googleAccount)
                 .createMeeting(withMeet)
