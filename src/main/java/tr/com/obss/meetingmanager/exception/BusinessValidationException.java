@@ -1,5 +1,6 @@
 package tr.com.obss.meetingmanager.exception;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,5 +17,8 @@ public class BusinessValidationException extends BaseException{
 
     public BusinessValidationException(String message, Map<String ,String> errMap) {
         super(message, errMap, code);
+    }
+    public BusinessValidationException(String message,  Set<String> errList, Map<String ,String> errMap) {
+        super(message, errList,errMap, code);
     }
 }

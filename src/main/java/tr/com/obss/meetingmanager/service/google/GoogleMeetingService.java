@@ -30,10 +30,10 @@ public class GoogleMeetingService implements MeetingService {
     @Transactional("ptm")
     public MeetingDTO handleCreate(MeetingDTO meetingDTO) {
         GoogleAccountDTO googleAccount = googleAccountService.findActiveAccount();
-        CalendarEventDTO calendarEvent = googleMapper.toCalendarEventDTO(meetingDTO,googleAccount,true);
-        CalendarEventDTO response = calendarClientService.scheduleEvent(calendarEvent);
-        meetingDTO.setCalendarEventId(response.getEventId());
-        meetingDTO.setMeetingURL(response.getMeetingUrl());
+//        CalendarEventDTO calendarEvent = googleMapper.toCalendarEventDTO(meetingDTO,googleAccount,true);
+//        CalendarEventDTO response = calendarClientService.scheduleEvent(calendarEvent);
+//        meetingDTO.setCalendarEventId(response.getEventId());
+//        meetingDTO.setMeetingURL(response.getMeetingUrl());
         meetingDTO.setProviderAccount(ProviderAccountDTO.builder().id(googleAccount.getId()).build());
         return meetingDTO;
     }

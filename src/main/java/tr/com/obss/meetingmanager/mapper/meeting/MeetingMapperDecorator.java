@@ -56,7 +56,6 @@ public class MeetingMapperDecorator implements MeetingMapper {
     if (meetingDTO.getId() == null || meetingDTO.getId().isEmpty()) {
       meeting.setId(UUID.randomUUID().toString());
     }
-
     meeting
         .getRecipients()
         .forEach(
@@ -72,6 +71,15 @@ public class MeetingMapperDecorator implements MeetingMapper {
   @Override
   public void updateMeeting(MeetingDTO dto, Meeting entity) {
     delegate.updateMeeting(dto, entity);
+    entity
+        .getRecipients()
+        .forEach(
+            recipient -> {
+              recipient.setMeeting(entity);
+              if (recipient.getId() == null) {
+                recipient.setId(UUID.randomUUID().toString());
+              }
+            });
   }
 
   @Override

@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
@@ -27,6 +26,12 @@ public class BaseException extends RuntimeException{
     }
     public BaseException(String message, Map<String,String> detailedErrorList, int code){
         super(message);
+        this.detailedErrorList = detailedErrorList;
+        this.code = code;
+    }
+    public BaseException(String message, Set<String> errList, Map<String,String> detailedErrorList, int code){
+        super(message);
+        this.errList = errList;
         this.detailedErrorList = detailedErrorList;
         this.code = code;
     }

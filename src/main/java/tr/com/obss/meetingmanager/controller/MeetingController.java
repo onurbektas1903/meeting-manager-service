@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import tr.com.obss.meetingmanager.dto.MeetingQueryDTO;
 import tr.com.obss.meetingmanager.service.MeetingManagerService;
 import tr.com.obss.meetingmanager.dto.MeetingDTO;
 import tr.com.obss.meetingmanager.dto.SlotRequestDTO;
@@ -30,9 +31,9 @@ private final SlotRequestService slotRequestService;
 
     @PostMapping("/meeting")
     @ResponseBody
-    public MeetingDTO createMeeting(
+    public void createMeeting(
            @Valid @RequestBody MeetingDTO meetingDTO) {
-        return meetingManagerService.createMeeting(meetingDTO);
+         meetingManagerService.createMeeting(meetingDTO);
     }
 
     @GetMapping("/meeting/{id}")
@@ -46,6 +47,12 @@ private final SlotRequestService slotRequestService;
     public MeetingDTO updateMeeting(@RequestBody MeetingDTO meetingDTO,
                                                 @PathVariable String id) {
         return meetingManagerService.updateMeeting(meetingDTO,id);
+    }
+    @PostMapping("/search-meetings")
+    @ResponseBody
+    public List<MeetingDTO> createMeeting(
+            @Valid @RequestBody MeetingQueryDTO queryDTO) {
+        return meetingManagerService.searchMeetings(queryDTO);
     }
 
     @DeleteMapping("/meeting/{id}")

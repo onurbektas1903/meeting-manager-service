@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public interface MeetingRepository extends JpaRepository<Meeting, String> {
+public interface MeetingRepository extends JpaRepository<Meeting, String>,SearchableMeetRepository {
 
   @Query(
       "select new Meeting (id,title,startDate,endDate,organizer) from Meeting"

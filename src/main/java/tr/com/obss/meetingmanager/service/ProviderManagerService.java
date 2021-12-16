@@ -64,7 +64,6 @@ public class ProviderManagerService {
     return null;
   }
 
-  @Transactional("ptm")
   public List<MeetingProviderDTO> getMeetingProviders() {
     return providerMapper.toDTOList(repository.findAll());
   }

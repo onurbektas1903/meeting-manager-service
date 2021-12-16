@@ -43,6 +43,14 @@ public class GlobalExceptionHandler {
             NOT_FOUND.value(), Collections.singleton("serviceNotFound"), ex.getMessage()),
         NOT_FOUND);
     }
+    @ExceptionHandler(ObjectInUseException.class)
+    public ResponseEntity<ErrorMessage> handleObjectInUseException(
+            ObjectInUseException ex, WebRequest request) {
+    return new ResponseEntity<>(
+        new ErrorMessage(
+                CONFLICT.value(), ex.getErrList(), ex.getMessage()),
+        NOT_FOUND);
+    }
 
     @ExceptionHandler(NotUniqueException.class)
     public ResponseEntity<ErrorMessage> handleNotUniqueException(

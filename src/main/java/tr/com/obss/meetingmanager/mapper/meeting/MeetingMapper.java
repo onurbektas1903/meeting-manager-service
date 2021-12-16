@@ -36,6 +36,10 @@ public interface MeetingMapper {
     @Mapping(source = "end", target = "endDate")
     Meeting toEntity(MeetingDTO meetingDTO);
 
+    @Mapping(target = "providerAccount",ignore = true)
+    @Mapping(source = "start", target = "startDate")
+    @Mapping(source = "end", target = "endDate")
+    @Mapping(target = "slotRequests", ignore = true)
     void updateMeeting(MeetingDTO dto, @MappingTarget Meeting entity);
 
 }

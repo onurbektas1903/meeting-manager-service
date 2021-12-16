@@ -3,6 +3,7 @@ package tr.com.obss.meetingmanager.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import tr.com.obss.meetingmanager.audit.BaseEntity;
@@ -24,6 +25,7 @@ import java.util.List;
 @Where(clause = "deleted = false")
 @NoArgsConstructor
 @Entity
+@ToString(exclude = {"recipients","slotRequests"})
 @NamedEntityGraph(
     name = "account-entity-graph",
     attributeNodes = {

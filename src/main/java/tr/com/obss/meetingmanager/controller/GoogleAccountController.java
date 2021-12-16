@@ -42,7 +42,7 @@ public class GoogleAccountController {
 
   @GetMapping("/accounts")
   @ResponseBody
-  public List<GoogleAccountDTO> getGoogleAccounts() {
+  public List<GoogleAccountDTO> listGoogleAccounts() {
     return googleAccountService.getAll();
   }
 

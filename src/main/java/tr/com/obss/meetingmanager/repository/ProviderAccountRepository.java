@@ -1,15 +1,20 @@
 package tr.com.obss.meetingmanager.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import tr.com.obss.meetingmanager.entity.ProviderAccount;
 import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 
+import javax.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static javax.persistence.LockModeType.PESSIMISTIC_WRITE;
+
 @Repository
 public interface ProviderAccountRepository extends JpaRepository<ProviderAccount, String> {
 
@@ -26,6 +31,7 @@ public interface ProviderAccountRepository extends JpaRepository<ProviderAccount
                     + "     or ?2 between m.endDate and m.endDate)"
                     + "     and p.meetingProvider.id = ?3 "
                     + "    ))")
+    @Lock(PESSIMISTIC_WRITE)
     List<ProviderAccount> findFreeAccounts(long startDate, long endDate, String id);
 
     Optional<ProviderAccount> findByMeetingProviderIdAndIsActive(String id,boolean isActive);
