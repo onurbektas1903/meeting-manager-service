@@ -70,6 +70,10 @@ public class Meeting extends BaseEntity {
   @JoinColumn(name = "provider_account_id", nullable = false)
   private ProviderAccount providerAccount;
 
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "meeting_provider_id", nullable = false)
+  private MeetingProvider meetingProvider;
+
   public Meeting(String id, String title, long startDate, long endDate, String organizer) {
     setId(id);
     this.title = title;

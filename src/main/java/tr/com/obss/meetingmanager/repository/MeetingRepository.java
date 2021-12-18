@@ -21,8 +21,11 @@ public interface MeetingRepository extends JpaRepository<Meeting, String>,Search
 
   @Query(
           "select new Meeting (id,title,startDate,endDate,organizer) from Meeting"
-                  + " where providerAccount.id in ?1 and startDate >= ?2")
-  List<Meeting> findAccountsFutureMeetings(Set<String> accounts, long now);
+                  + " where providerAccount.id = ?1 and startDate >= ?2")
+  List<Meeting> findAccountsFutureMeetings(String accountId, long now);
+
+  List<Meeting> findByMeetingProviderId(String meetingProviderId);
+
 //  @Query(
 //          "select new Meeting (id,title,startDate,endDate,organizer) from Meeting"
 //                  + " where providerAccount.id = ?1 and startDate >= ?2")

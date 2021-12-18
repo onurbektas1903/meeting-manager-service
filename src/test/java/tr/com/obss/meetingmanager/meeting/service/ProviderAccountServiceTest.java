@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
 import tr.com.obss.meetingmanager.exception.BusinessValidationException;
 import tr.com.obss.meetingmanager.exception.NotFoundException;
+import tr.com.obss.meetingmanager.repository.MeetingRepository;
 import tr.com.obss.meetingmanager.repository.ProviderAccountRepository;
 import tr.com.obss.meetingmanager.service.ProviderAccountManagerService;
 
@@ -37,10 +38,11 @@ public class ProviderAccountServiceTest {
 
   private ProviderAccountManagerService providerAccountManagerService;
   private @Mock ProviderAccountRepository repository;
+  private @Mock MeetingRepository meetingRepository;
 
   @BeforeEach
   public void init() {
-    providerAccountManagerService = new ProviderAccountManagerService(repository);
+    providerAccountManagerService = new ProviderAccountManagerService(repository,meetingRepository);
     Mockito.lenient()
         .when(repository.findById(Mockito.anyString()))
         .thenReturn(Optional.of(createProviderAccount(GOOGLE)));

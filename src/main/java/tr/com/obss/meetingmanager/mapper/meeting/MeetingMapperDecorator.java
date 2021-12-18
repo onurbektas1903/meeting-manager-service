@@ -33,11 +33,8 @@ public class MeetingMapperDecorator implements MeetingMapper {
   @Override
   public MeetingDTO toDTO(Meeting meeting) {
     MeetingDTO meetingDTO = delegate.toDTO(meeting);
-    ProviderAccount account = meeting.getProviderAccount();
-    if (account != null && account.getMeetingProvider() != null) {
       meetingDTO.setMeetingProvider(
-          providerMapper.toDTOWithoutProviderAccounts(account.getMeetingProvider()));
-    }
+          providerMapper.toDTOWithoutProviderAccounts(meeting.getMeetingProvider()));
     return meetingDTO;
   }
 

@@ -15,12 +15,12 @@ import tr.com.obss.meetingmanager.service.ProviderManagerService;
 @RequiredArgsConstructor
 public class GoogleProviderService implements ProviderService {
     private final ObjectMapper mapper = new ObjectMapper();
-    private final ProviderManagerService providerManagerService;
 
     @Override
     @Transactional("ptm")
     public MeetingProviderDTO createMeetingProvider(MeetingProviderDTO meetingProviderDTO) {
-        return providerManagerService.saveMeetingProvider(meetingProviderDTO);
+        //TODO validate provider settings
+        return meetingProviderDTO;
     }
 
     @Override

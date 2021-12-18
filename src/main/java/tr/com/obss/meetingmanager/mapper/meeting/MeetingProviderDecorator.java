@@ -10,6 +10,7 @@ import tr.com.obss.meetingmanager.entity.MeetingProvider;
 import tr.com.obss.meetingmanager.entity.ProviderAccount;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Primary
@@ -23,7 +24,11 @@ public class MeetingProviderDecorator implements MeetingProviderMapper{
     }
     @Override
     public MeetingProvider toEntityWithoutAccounts(MeetingProviderDTO meetingProviderDTO) {
-        return delegate.toEntityWithoutAccounts(meetingProviderDTO);
+        MeetingProvider meetingProvider = delegate.toEntityWithoutAccounts(meetingProviderDTO);
+        if(meetingProvider.getId()==null){
+            meetingProvider.setId(UUID.randomUUID().toString());
+        }
+        return meetingProvider;
     }
 
     @Override
@@ -48,5 +53,10 @@ public class MeetingProviderDecorator implements MeetingProviderMapper{
     @Override
     public List<MeetingProviderDTO> toDTOList(List<MeetingProvider> meetingProviders) {
        return meetingProviders.parallelStream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateProvider(MeetingProviderDTO dto, MeetingProvider entity) {
+        delegate.updateProvider(dto,entity);
     }
 }

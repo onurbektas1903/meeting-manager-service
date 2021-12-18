@@ -116,7 +116,7 @@ public class MeetingManagerService {
     SlotRequest slotRequest = findSlotRequestById(id);
     slotRepository.deleteById(slotRequest.getId());
     return slotRequestMapper.toDTO(slotRequest);
-  }
+}
 
   @Transactional("ptm")
   public void deleteMeeting(String id) {

@@ -41,4 +41,10 @@ public class ZoomAccountController {
     return zoomAccountService.getAll();
   }
 
+  @GetMapping("/free-accounts/{providerId}")
+  @ResponseBody
+  public List<ZoomAccountDTO> getFreeZoomAccounts(@PathVariable String providerId) {
+    return zoomAccountService.getFreeZoomAccounts(providerId);
+  }
+
 }

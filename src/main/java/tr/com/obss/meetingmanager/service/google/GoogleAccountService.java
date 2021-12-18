@@ -1,6 +1,7 @@
 package tr.com.obss.meetingmanager.service.google;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -17,6 +18,7 @@ import tr.com.obss.meetingmanager.exception.ObjectInUseException;
 import tr.com.obss.meetingmanager.feigns.GoogleCalendarServiceClient;
 import tr.com.obss.meetingmanager.mapper.google.GoogleMapper;
 import tr.com.obss.meetingmanager.repository.ProviderAccountRepository;
+import tr.com.obss.meetingmanager.service.ProviderAccountManagerService;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,20 +29,18 @@ import static tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum.GOOGLE;
 @Service
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = "googleAccountCache")
+@Slf4j
 public class GoogleAccountService {
-  private final ProviderAccountRepository repository;
   private final GoogleMapper mapper;
   private final GoogleCalendarServiceClient calendarService;
-
+  private final ProviderAccountManagerService accountManagerService;
   @Transactional("ptm")
   @CacheEvict(cacheNames = "googleAccounts", allEntries = true)
   public GoogleAccountDTO createGoogleAccount(GoogleAccountDTO googleAccount, MultipartFile multipartFile) {
-      if(repository.findByMeetingProviderType(GOOGLE).isPresent()){
-        throw new NotUniqueException("There can only be 1 google account",Collections.singleton("googleAccount"));
-      }
-    checkAccountNameIsUniqueForGivenType(googleAccount);
+    checkGoogleAccountExists();
+    accountManagerService.checkAccountNameIsUniqueForGivenType("-1",googleAccount.getAccountMail(),GOOGLE);
     calendarService.createAccount(multipartFile,googleAccount.getAccountMail());
-    return mapper.toGoogleAccountDTO(repository.save(mapper.toEntity(googleAccount)));
+    return mapper.toGoogleAccountDTO(accountManagerService.saveAccount(mapper.toEntity(googleAccount)));
   }
 
   @Transactional("ptm")
@@ -50,25 +50,23 @@ public class GoogleAccountService {
                   @CacheEvict(cacheNames = "googleAccounts", allEntries = true)
           })
   public GoogleAccountDTO updateGoogleAccount(GoogleAccountDTO googleAccount, MultipartFile multipartFile, String id) {
-    checkAccountNameIsUniqueForGivenType(googleAccount);
+    accountManagerService.checkAccountNameIsUniqueForGivenType(id,googleAccount.getAccountMail(),GOOGLE);
     googleAccount.setAccountDetails(new GoogleAccountDetails());
     calendarService.updateAccount(multipartFile,googleAccount.getAccountMail());
-    return mapper.toGoogleAccountDTO(repository.save(mapper.toEntity(googleAccount)));
+    return mapper.toGoogleAccountDTO(accountManagerService.saveAccount(mapper.toEntity(googleAccount)));
   }
 
   public GoogleAccountDTO findGoogleAccount(){
-    ProviderAccount providerAccount = repository.findByMeetingProviderType(GOOGLE).orElseThrow(() ->
-            new NotFoundException("Account Not Found", Collections.singleton("googleAccount")));
-    return mapper.toGoogleAccountDTO(providerAccount);
+    return mapper.toGoogleAccountDTO(accountManagerService.findByMeetingProviderType(GOOGLE));
   }
+
   @Cacheable(cacheNames = "googleAccounts")
   public List<GoogleAccountDTO> getAll(){
-    return mapper.toDTOList(repository.findAllByMeetingProviderType(GOOGLE));
+    return mapper.toDTOList(accountManagerService.findAllByMeetingProviderType(GOOGLE));
   }
   @Cacheable(cacheNames = "googleAccount", key = "#id", unless = "#result == null")
   public GoogleAccountDTO findById(String id){
-    ProviderAccount providerAccount = findProviderAccountById(id);
-    return mapper.toGoogleAccountDTO(providerAccount);
+    return mapper.toGoogleAccountDTO(accountManagerService.findProviderAccountById(id));
   }
 
   @Transactional("ptm")
@@ -78,10 +76,11 @@ public class GoogleAccountService {
                   @CacheEvict(cacheNames = "googleAccounts", allEntries = true)
           })
   public void deleteAccount(String id ){
-    ProviderAccount account = findProviderAccountById(id);
+    ProviderAccount account = accountManagerService.findProviderAccountById(id);
     checkAccountProviderExists(account);
+    accountManagerService.checkFutureMeetingExistForProviderAccounts(id);
     calendarService.deleteAccount(account.getAccountMail());
-    repository.delete(account);
+    accountManagerService.deleteAccount(account);
   }
 
   @Transactional("ptm")
@@ -91,18 +90,14 @@ public class GoogleAccountService {
               Collections.singleton(account.getMeetingProvider().getName()));
     }
   }
-  @Cacheable(cacheNames = "googleAccount", key = "#id", unless = "#result == null")
-  public ProviderAccount findProviderAccountById(String id) {
-    return repository.findById(id).orElseThrow(() ->
-            new NotFoundException("Account Not Found", Collections.singleton("googleAccount")));
-  }
-
-  public void checkAccountNameIsUniqueForGivenType(GoogleAccountDTO googleAccountDTO){
-    Optional<ProviderAccount> providerAccount =
-            repository.findByAccountMailAndMeetingProviderTypeAndIdNot(googleAccountDTO.getAccountMail(), GOOGLE,
-                    googleAccountDTO.getId() == null ? "-1" : googleAccountDTO.getId());
-    if(providerAccount.isPresent()){
-      throw new NotUniqueException("Account name with this type already in use",Collections.singleton("accountMail"));
+  private void checkGoogleAccountExists(){
+    try{
+      ProviderAccount providerAccount = accountManagerService.findByMeetingProviderType(GOOGLE);
+      if(providerAccount != null){
+        throw new NotUniqueException("There can only 1 google account",Collections.singleton("googleAccount"));
+      }
+    }catch(NotFoundException e){
+        log.info("Google Account Not Created Yet");
     }
   }
 

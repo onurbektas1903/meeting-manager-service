@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import tr.com.obss.meetingmanager.entity.Meeting;
 import tr.com.obss.meetingmanager.entity.ProviderAccount;
 import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 
@@ -36,6 +37,8 @@ public interface ProviderAccountRepository extends JpaRepository<ProviderAccount
     List<ProviderAccount> findFreeAccounts(long startDate, long endDate, String id);
 
     Optional<ProviderAccount> findByMeetingProviderId(String id);
+
+    List<ProviderAccount> findByMeetingProviderTypeAndMeetingProviderIsNullOrMeetingProviderId(MeetingProviderTypeEnum type, String id);
 
     List<ProviderAccount> findAllByMeetingProviderType(MeetingProviderTypeEnum type);
 

@@ -19,13 +19,12 @@ import static tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum.ZOOM;
 @RequiredArgsConstructor
 public class ZoomProviderService implements ProviderService {
     private final ObjectMapper mapper = new ObjectMapper();
-    private final ProviderManagerService providerManagerService;
     @Override
     @Transactional("ptm")
     public MeetingProviderDTO createMeetingProvider(MeetingProviderDTO meetingProviderDTO) {
         //TODO validate
         ZoomSettingsDTO zoomSettings = mapper.convertValue(meetingProviderDTO.getSettings(), ZoomSettingsDTO.class);
-        return providerManagerService.saveMeetingProvider(meetingProviderDTO);
+        return meetingProviderDTO;
     }
     @Override
     @Transactional("ptm")

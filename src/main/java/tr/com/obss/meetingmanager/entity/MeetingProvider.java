@@ -17,6 +17,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -30,11 +31,9 @@ public class MeetingProvider extends BaseEntity {
     private static final long serialVersionUID = -5859944039923951511L;
     private String name;
     private ConferenceProviderTypeEnum conferenceType;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "meetingProvider")
+    @OneToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE}, fetch = FetchType.LAZY, mappedBy = "meetingProvider")
     @ToString.Exclude
-    @Where(clause = "deleted = false")
-    @SQLDelete(sql = "UPDATE ProviderAccount SET deleted = true WHERE id = ?")
-    private List<ProviderAccount> providerAccounts;
+    private List<ProviderAccount> providerAccounts = new ArrayList<>();
     private Boolean isActive;
     private String userRoleGroup;
     private MeetingProviderTypeEnum meetingProviderType;
@@ -43,5 +42,11 @@ public class MeetingProvider extends BaseEntity {
 
     public MeetingProvider(Map<String, String> settings) {
         this.settings = settings;
+    }
+
+    public void addProviderAccounts(List<ProviderAccount> providerAccounts){
+        this.providerAccounts.clear();
+        providerAccounts.forEach(providerAccount -> providerAccount.setMeetingProvider(this));
+        this.setProviderAccounts(providerAccounts);
     }
 }

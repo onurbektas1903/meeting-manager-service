@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
-import tr.com.obss.meetingmanager.factory.MeetProviderHandlerFactory;
-import tr.com.obss.meetingmanager.service.google.GoogleProviderService;
 import tr.com.obss.meetingmanager.service.ProviderManagerService;
-
 import javax.validation.Valid;
 import java.util.List;
 
@@ -27,33 +24,28 @@ import static org.springframework.http.HttpStatus.OK;
 @RequestMapping("/provider-manager")
 @Validated
 public class MeetingProviderController {
-  private final MeetProviderHandlerFactory handlerFactory;
   private final ProviderManagerService providerManagerService;
-  private final GoogleProviderService googleProviderService;
+
   @PostMapping("/provider")
   @ResponseBody
   public MeetingProviderDTO createProvider(@Valid @RequestBody MeetingProviderDTO meetingProvider) {
 
-    return handlerFactory
-        .findStrategy(meetingProvider.getMeetingProviderType())
-        .createMeetingProvider(meetingProvider);
+    return providerManagerService.saveMeetingProvider(meetingProvider);
   }
 
   @PutMapping("/provider/{id}")
   @ResponseBody
-  public MeetingProviderDTO updateProvider(@Valid @RequestBody MeetingProviderDTO meetingDTO, @PathVariable String id) {
+  public MeetingProviderDTO updateProvider(@Valid @RequestBody MeetingProviderDTO meetingProviderDTO, @PathVariable String id) {
 
-    return handlerFactory
-        .findStrategy(meetingDTO.getMeetingProviderType())
-        .updateMeetingProvider(meetingDTO,id);
+    return providerManagerService.updateMeetingProvider(meetingProviderDTO,id);
   }
-//
-//  @DeleteMapping("/provider/{id}")
-//  @ResponseBody
-//  @ResponseStatus(OK)
-//  public void  deleteProvider(@PathVariable String id) {
-//    googleAccountService.deleteAccount(id);
-//  }
+
+  @DeleteMapping("/provider/{id}")
+  @ResponseBody
+  @ResponseStatus(OK)
+  public void  deleteProvider(@PathVariable String id) {
+    providerManagerService.deleteMeetingProvider(id);
+  }
 
   @GetMapping("/provider/{id}")
   @ResponseBody
@@ -66,11 +58,13 @@ public class MeetingProviderController {
   public List<MeetingProviderDTO> listProviders() {
     return providerManagerService.getMeetingProviders();
   }
+
   @GetMapping("active-providers")
   @ResponseBody
   public List<MeetingProviderDTO> listActiveProviders() {
     return providerManagerService.getActiveProviders();
   }
+
   @PutMapping("/provider/active-passive/{id}/{isActive}")
   @ResponseBody
   public MeetingProviderDTO handleProviderActiveStatus(
