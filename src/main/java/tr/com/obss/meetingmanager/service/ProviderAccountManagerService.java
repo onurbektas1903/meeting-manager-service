@@ -24,13 +24,14 @@ public class ProviderAccountManagerService {
     public ProviderAccount getSuitableAccount(long startDate, long endDate, MeetingProviderDTO providerDTO){
         return providerDTO.getConferenceType() == ConferenceProviderTypeEnum.POOL ?
                 findFreeAccountsForGivenDateRange(startDate, endDate, providerDTO) :
-                findActiveAccountByProviderId(providerDTO.getId());
+                findAccountByProviderId(providerDTO.getId());
     }
 
-    public ProviderAccount findActiveAccountByProviderId(String providerId){
-       return repository.findByMeetingProviderIdAndIsActive(providerId,true).orElseThrow(()-> new NotFoundException(
+    public ProviderAccount findAccountByProviderId(String providerId){
+       return repository.findByMeetingProviderId(providerId).orElseThrow(()-> new NotFoundException(
                 "Active Account Not Found",Collections.singleton("providerAccount")));
     }
+
     private ProviderAccount findFreeAccountsForGivenDateRange(long startDate, long endDate, MeetingProviderDTO providerDTO) {
         List<ProviderAccount> freeAccounts =repository.findFreeAccounts(startDate, endDate, providerDTO.getId());
         if(freeAccounts.isEmpty()){
@@ -39,10 +40,10 @@ public class ProviderAccountManagerService {
         }
         return freeAccounts.get(0);
     }
+
     @Transactional("ptm")
     public List<ProviderAccount> findAccountsByIds( Set<String> accounts){
        return repository.findAllByIdIn(accounts).orElseThrow(()-> new NotFoundException(
                 "Accounts Not Found",Collections.singleton("providerAccounts")));
     }
-
 }

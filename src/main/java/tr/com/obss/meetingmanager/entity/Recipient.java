@@ -16,6 +16,7 @@ import javax.persistence.ManyToOne;
 @Entity
 @Where(clause = "deleted = false")
 @NoArgsConstructor
+
 public class Recipient extends BaseEntity {
 
     private static final long serialVersionUID = -5120769224736206346L;

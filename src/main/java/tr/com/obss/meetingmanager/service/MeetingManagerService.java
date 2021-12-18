@@ -1,8 +1,6 @@
 package tr.com.obss.meetingmanager.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tr.com.obss.meetingmanager.dto.MeetingDTO;
@@ -26,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-
 @Service
 @RequiredArgsConstructor
 public class MeetingManagerService {
@@ -36,15 +33,17 @@ public class MeetingManagerService {
   private final SlotRequestMapper slotRequestMapper;
   private final SlotRequestRepository slotRepository;
   private final GoogleMeetingService googleMeetingService;
+
   @Transactional("ptm")
-  public void createMeeting(MeetingDTO meetingDTO) {
+  public MeetingDTO createMeeting(MeetingDTO meetingDTO) {
     validate(meetingDTO);
     MeetingDTO createdMeeting =
         handlerFactory
             .findStrategy(meetingDTO.getMeetingProvider().getMeetingProviderType())
             .handleCreate(meetingDTO);
-    Meeting meeting = mapper.toEntity(meetingDTO);
-     repository.save(meeting);
+    Meeting meeting = mapper.toEntity(createdMeeting);
+    repository.save(meeting);
+    return createdMeeting;
   }
 
   @Transactional("ptm")
@@ -58,14 +57,17 @@ public class MeetingManagerService {
     meeting.addSlotRequest(slotRequestEntity);
     return slotRequestMapper.toDTO(slotRequestEntity);
   }
-  public List<MeetingDTO> searchMeetings(MeetingQueryDTO queryDTO){
+
+  public List<MeetingDTO> searchMeetings(MeetingQueryDTO queryDTO) {
     return mapper.toDTOList(repository.searchMeetings(queryDTO));
   }
+
   @Transactional("ptm")
   public MeetingDTO updateMeeting(MeetingDTO meetingDTO, String id) {
     validate(meetingDTO);
-    Meeting meeting =findById(id);
-    meetingDTO.setProviderAccount(ProviderAccountDTO.builder().id(meeting.getProviderAccount().getId()).build());
+    Meeting meeting = findById(id);
+    meetingDTO.setProviderAccount(
+        ProviderAccountDTO.builder().id(meeting.getProviderAccount().getId()).build());
     MeetingDTO updatedMeeting =
         handlerFactory
             .findStrategy(meetingDTO.getMeetingProvider().getMeetingProviderType())
@@ -89,7 +91,7 @@ public class MeetingManagerService {
       updateSlotRequest(slotRequest, SlotRequestStatusEnum.APPROVED);
       repository.save(meeting);
     } else {
-        updateSlotRequest(slotRequest, SlotRequestStatusEnum.REJECTED);
+      updateSlotRequest(slotRequest, SlotRequestStatusEnum.REJECTED);
     }
     return slotRequestMapper.toDTO(slotRequest);
   }
@@ -102,22 +104,26 @@ public class MeetingManagerService {
   }
 
   @Transactional("ptm")
-  public void updateSlotRequest(SlotRequest slotRequest,SlotRequestStatusEnum slotRequestStatus) {
-    //TODO başlangıç bitişi uppdate et
-      slotRequest.setRequestStatus(slotRequestStatus);
-      slotRepository.save(slotRequest);
+  public void updateSlotRequest(SlotRequest slotRequest, SlotRequestStatusEnum slotRequestStatus) {
+    // TODO başlangıç bitişi uppdate et
+    slotRequest.setRequestStatus(slotRequestStatus);
+    slotRepository.save(slotRequest);
   }
+
   @Transactional("ptm")
-  public SlotRequestDTO removeSlotRequest(String id){
-    //TODO send deleted mail
+  public SlotRequestDTO removeSlotRequest(String id) {
+    // TODO send deleted mail
     SlotRequest slotRequest = findSlotRequestById(id);
     slotRepository.deleteById(slotRequest.getId());
     return slotRequestMapper.toDTO(slotRequest);
   }
+
   @Transactional("ptm")
   public void deleteMeeting(String id) {
     Meeting meeting = findById(id);
-    handlerFactory.findStrategy(meeting.getProviderAccount().getMeetingProviderType()).handleCancel(mapper.toDTOWithAccount(meeting));
+    handlerFactory
+        .findStrategy(meeting.getProviderAccount().getMeetingProviderType())
+        .handleCancel(mapper.toDTOWithAccount(meeting));
     repository.deleteById(id);
   }
 
@@ -149,15 +155,20 @@ public class MeetingManagerService {
 
   private void validateSlotRequest(SlotRequestDTO slotRequestDTO, Meeting meeting) {
     long now = Instant.now().toEpochMilli();
+
     if (slotRequestDTO.getStartDate() == meeting.getStartDate()
         && slotRequestDTO.getEndDate() == meeting.getEndDate()) {
       throw new BusinessValidationException(
-          "Slot request time must be diffrent from meeting",  Collections.singletonMap("slotTime","shouldBeDiffrent"));
+          "Slot request time must be diffrent from meeting",
+          Collections.singletonMap("slotTime", "shouldBeDiffrent"));
     }
-    if (slotRequestDTO.getStartDate() < now || slotRequestDTO.getEndDate() < now) {
+    if (slotRequestDTO.getStartDate() < now
+        || slotRequestDTO.getEndDate() < now
+        || slotRequestDTO.getStartDate() >= slotRequestDTO.getEndDate()) {
 
       throw new BusinessValidationException(
-          "Start/End time cant be smaller than now", Collections.singletonMap("startEndDate","invalidRange"));
+          "Start/End time cant be smaller than now",
+          Collections.singletonMap("startEndDate", "invalidRange"));
     }
   }
 }

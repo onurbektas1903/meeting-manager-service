@@ -29,18 +29,18 @@ public class GoogleMeetingService implements MeetingService {
     @Override
     @Transactional("ptm")
     public MeetingDTO handleCreate(MeetingDTO meetingDTO) {
-        GoogleAccountDTO googleAccount = googleAccountService.findActiveAccount();
-//        CalendarEventDTO calendarEvent = googleMapper.toCalendarEventDTO(meetingDTO,googleAccount,true);
-//        CalendarEventDTO response = calendarClientService.scheduleEvent(calendarEvent);
-//        meetingDTO.setCalendarEventId(response.getEventId());
-//        meetingDTO.setMeetingURL(response.getMeetingUrl());
+        GoogleAccountDTO googleAccount = googleAccountService.findGoogleAccount();
+        CalendarEventDTO calendarEvent = googleMapper.toCalendarEventDTO(meetingDTO,googleAccount,true);
+        CalendarEventDTO response = calendarClientService.scheduleEvent(calendarEvent);
+        meetingDTO.setCalendarEventId(response.getEventId());
+        meetingDTO.setMeetingURL(response.getMeetingUrl());
         meetingDTO.setProviderAccount(ProviderAccountDTO.builder().id(googleAccount.getId()).build());
         return meetingDTO;
     }
 
     @Transactional("ptm")
     public void addMeetingToCalendar(MeetingDTO meetingDTO){
-        GoogleAccountDTO googleAccount = googleAccountService.findActiveAccount();
+        GoogleAccountDTO googleAccount = googleAccountService.findGoogleAccount();
         CalendarEventDTO calendarEvent = googleMapper.toCalendarEventDTO(meetingDTO,googleAccount,false);
         CalendarEventDTO response = calendarClientService.scheduleEvent(calendarEvent);
         meetingDTO.setCalendarEventId(response.getEventId());
@@ -48,7 +48,7 @@ public class GoogleMeetingService implements MeetingService {
     @Transactional("ptm")
     public void sendChangeSlotMail(SlotRequestDTO slotRequestDTO){
         calendarClientService.changeSlot(googleMapper.toGoogleMailDTO(slotRequestDTO,
-                googleAccountService.findActiveAccount()));
+                googleAccountService.findGoogleAccount()));
     }
     @Override
     @Transactional("ptm")
@@ -59,13 +59,13 @@ public class GoogleMeetingService implements MeetingService {
     @Transactional("ptm")
     public void updateCalendarMeeting(MeetingDTO meetingDTO,boolean withMeet){
         calendarClientService.updateEvent(googleMapper.toCalendarEventDTO(meetingDTO,
-                googleAccountService.findActiveAccount(),withMeet));
+                googleAccountService.findGoogleAccount(),withMeet));
     }
 
     @Override
     @Transactional("ptm")
     public void handleCancel(MeetingDTO meetingDTO) {
-        GoogleAccountDTO googleAccount = googleAccountService.findActiveAccount();
+        GoogleAccountDTO googleAccount = googleAccountService.findGoogleAccount();
         DeleteEventDTO deleteEventDTO = googleMapper.toDeleteEventDTO(googleAccount,meetingDTO);
         calendarClientService.deleteEvent(deleteEventDTO,meetingDTO.getCalendarEventId());
     }

@@ -1,6 +1,10 @@
 package tr.com.obss.meetingmanager.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tr.com.obss.meetingmanager.audit.BaseEntity;
@@ -24,6 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "providerCache")
 public class ProviderManagerService {
 
   private final MeetingProviderMapper providerMapper;
@@ -32,6 +37,11 @@ public class ProviderManagerService {
   private final MeetingRepository meetingRepository;
 
   @Transactional("ptm")
+  @Caching(
+      evict = {
+        @CacheEvict(cacheNames = "providers", allEntries = true),
+        @CacheEvict(cacheNames = "activeProviders", allEntries = true)
+      })
   public MeetingProviderDTO saveMeetingProvider(MeetingProviderDTO meetingProviderDTO) {
     Set<String> accounts =
         meetingProviderDTO.getProviderAccounts().parallelStream()
@@ -46,35 +56,54 @@ public class ProviderManagerService {
     return providerMapper.toDTO(saved);
   }
 
+  @Cacheable(cacheNames = "provider", key = "#id", unless = "#result == null")
   public MeetingProvider getById(String id) {
     return repository
         .findById(id)
         .orElseThrow(() -> new NotFoundException("Meeting Provider Not Found"));
   }
-
+  @Cacheable(cacheNames = "provider", key = "#id", unless = "#result == null")
   public MeetingProviderDTO findById(String id) {
     return providerMapper.toDTO(getById(id));
   }
 
-  public MeetingProviderDTO updateMeetingProvider(MeetingProviderDTO meetingProviderDTO) {
+  @Caching(
+          evict = {
+                  @CacheEvict(cacheNames = "provider", key = "#id"),
+                  @CacheEvict(cacheNames = "providers", allEntries = true),
+                  @CacheEvict(cacheNames = "activeProviders", allEntries = true)
+          })
+  public MeetingProviderDTO updateMeetingProvider(MeetingProviderDTO meetingProviderDTO,String id) {
     return null;
   }
-
+//TODO method imzasını değiştir
+  @Caching(
+      evict = {
+        @CacheEvict(cacheNames = "provider", key = "#id"),
+        @CacheEvict(cacheNames = "providers", allEntries = true),
+        @CacheEvict(cacheNames = "activeProviders", allEntries = true)
+      })
   public MeetingProviderDTO deleteMeetingProvider(MeetingProviderDTO meetingProviderDTO) {
     return null;
   }
 
+  @Cacheable(cacheNames = "providers")
   public List<MeetingProviderDTO> getMeetingProviders() {
     return providerMapper.toDTOList(repository.findAll());
   }
 
+  @Cacheable(cacheNames = "activeProviders")
   public List<MeetingProviderDTO> getActiveProviders() {
     return providerMapper.toDTOList(repository.findAllByIsActive(true));
   }
 
-
   @Transactional("ptm")
-  public MeetingProviderDTO activateDeactivateProvider(String id, boolean isActive) {
+  @Caching(
+          evict = {
+                  @CacheEvict(cacheNames = "provider", key = "#id"),
+                  @CacheEvict(cacheNames = "providers", allEntries = true),
+                  @CacheEvict(cacheNames = "activeProviders", allEntries = true)
+          })  public MeetingProviderDTO activateDeactivateProvider(String id, boolean isActive) {
     MeetingProvider provider = getById(id);
     Set<String> accountIds =
         provider.getProviderAccounts().parallelStream()

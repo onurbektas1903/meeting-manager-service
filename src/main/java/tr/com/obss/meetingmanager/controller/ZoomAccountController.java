@@ -35,21 +35,10 @@ public class ZoomAccountController {
     return zoomAccountService.findById(id);
   }
 
-  @PutMapping("/account/active-passive/{id}/{isActive}")
-  @ResponseBody
-  public ZoomAccountDTO makeAccountPassive(@PathVariable String id,@PathVariable boolean isActive) {
-    //TODO implement here
-    return null;
-  }
   @GetMapping("/accounts")
   @ResponseBody
   public List<ZoomAccountDTO> getZoomAccounts() {
     return zoomAccountService.getAll();
   }
 
-  @GetMapping("/active-accounts")
-  @ResponseBody
-  public List<ZoomAccountDTO> getActiveZoomAccounts() {
-    return zoomAccountService.getAllActiveAccounts();
-  }
 }

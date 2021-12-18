@@ -20,7 +20,6 @@ public class ProviderAccountDTO implements Serializable {
     protected String accountMail;
     @NotEmpty(message="applicationName mail can't be null")
     private String applicationName;
-    private Boolean isActive;
     private MeetingProviderDTO meetingProvider;
     private MeetingProviderTypeEnum meetingProviderType;
 }

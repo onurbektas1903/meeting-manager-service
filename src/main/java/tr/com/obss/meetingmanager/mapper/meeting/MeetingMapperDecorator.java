@@ -71,15 +71,17 @@ public class MeetingMapperDecorator implements MeetingMapper {
   @Override
   public void updateMeeting(MeetingDTO dto, Meeting entity) {
     delegate.updateMeeting(dto, entity);
-    entity
-        .getRecipients()
-        .forEach(
-            recipient -> {
-              recipient.setMeeting(entity);
-              if (recipient.getId() == null) {
-                recipient.setId(UUID.randomUUID().toString());
-              }
-            });
+    if (entity.getRecipients() != null && !entity.getRecipients().isEmpty()) {
+      entity
+          .getRecipients()
+          .forEach(
+              recipient -> {
+                recipient.setMeeting(entity);
+                if (recipient.getId() == null) {
+                  recipient.setId(UUID.randomUUID().toString());
+                }
+              });
+    }
   }
 
   @Override

@@ -2,6 +2,7 @@ package tr.com.obss.meetingmanager.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
 import tr.com.obss.meetingmanager.factory.MeetProviderHandlerFactory;
@@ -17,6 +19,8 @@ import tr.com.obss.meetingmanager.service.ProviderManagerService;
 
 import javax.validation.Valid;
 import java.util.List;
+
+import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,6 +47,13 @@ public class MeetingProviderController {
         .findStrategy(meetingDTO.getMeetingProviderType())
         .updateMeetingProvider(meetingDTO,id);
   }
+//
+//  @DeleteMapping("/provider/{id}")
+//  @ResponseBody
+//  @ResponseStatus(OK)
+//  public void  deleteProvider(@PathVariable String id) {
+//    googleAccountService.deleteAccount(id);
+//  }
 
   @GetMapping("/provider/{id}")
   @ResponseBody
@@ -62,7 +73,7 @@ public class MeetingProviderController {
   }
   @PutMapping("/provider/active-passive/{id}/{isActive}")
   @ResponseBody
-  public MeetingProviderDTO makeAccountPassive(
+  public MeetingProviderDTO handleProviderActiveStatus(
           @PathVariable String id, @PathVariable boolean isActive) {
     return providerManagerService.activateDeactivateProvider(id,isActive);
   }

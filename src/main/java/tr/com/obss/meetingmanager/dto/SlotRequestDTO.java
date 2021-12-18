@@ -1,5 +1,7 @@
 package tr.com.obss.meetingmanager.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
@@ -10,6 +12,8 @@ import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class SlotRequestDTO implements Serializable {
     private String id;
     private static final long serialVersionUID = -4042418997796079829L;

@@ -35,15 +35,12 @@ public class ProviderAccount extends AuditableEntity {
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb")
     private Map<String,String> accountDetails;
-    private Boolean isActive;
 
     public ProviderAccount(String id,String applicationName, String accountMail,
-                           Object accountDetails,
-                           Boolean isActive) {
+                           Object accountDetails) {
         this.setId(id);
         this.applicationName = applicationName;
         this.accountMail = accountMail;
         this.accountDetails = (Map<String, String>) accountDetails;
-        this.isActive = isActive;
     }
 }

@@ -31,9 +31,9 @@ private final SlotRequestService slotRequestService;
 
     @PostMapping("/meeting")
     @ResponseBody
-    public void createMeeting(
+    public MeetingDTO createMeeting(
            @Valid @RequestBody MeetingDTO meetingDTO) {
-         meetingManagerService.createMeeting(meetingDTO);
+         return meetingManagerService.createMeeting(meetingDTO);
     }
 
     @GetMapping("/meeting/{id}")
@@ -48,6 +48,7 @@ private final SlotRequestService slotRequestService;
                                                 @PathVariable String id) {
         return meetingManagerService.updateMeeting(meetingDTO,id);
     }
+
     @PostMapping("/search-meetings")
     @ResponseBody
     public List<MeetingDTO> createMeeting(
@@ -79,6 +80,7 @@ private final SlotRequestService slotRequestService;
     public SlotRequestDTO handleSlotRequestApproval(@RequestBody SlotRequestDTO slotRequest,@PathVariable boolean isApproved) {
         return meetingManagerService.handleRequestApproval(slotRequest,isApproved);
     }
+
     @DeleteMapping("/meeting-slot-request/{id}")
     public SlotRequestDTO deleteSlotRequetsById(@PathVariable String id){
         return meetingManagerService.removeSlotRequest(id);

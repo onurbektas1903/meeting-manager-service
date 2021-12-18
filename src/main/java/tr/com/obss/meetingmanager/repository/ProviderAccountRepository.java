@@ -18,10 +18,11 @@ import static javax.persistence.LockModeType.PESSIMISTIC_WRITE;
 @Repository
 public interface ProviderAccountRepository extends JpaRepository<ProviderAccount, String> {
 
-    Optional<ProviderAccount> findByIsActiveAndMeetingProviderType(Boolean isActive,MeetingProviderTypeEnum type);
+    Optional<ProviderAccount> findByMeetingProviderType(MeetingProviderTypeEnum type);
+
     @Query(
             "select new tr.com.obss.meetingmanager.entity.ProviderAccount("
-                    + "id, applicationName,accountMail,accountDetails,isActive)"
+                    + "id, applicationName,accountMail,accountDetails)"
                     + " from ProviderAccount "
                     + " where meetingProvider.id = ?3 and id not in "
                     + " ("
@@ -34,18 +35,12 @@ public interface ProviderAccountRepository extends JpaRepository<ProviderAccount
     @Lock(PESSIMISTIC_WRITE)
     List<ProviderAccount> findFreeAccounts(long startDate, long endDate, String id);
 
-    Optional<ProviderAccount> findByMeetingProviderIdAndIsActive(String id,boolean isActive);
+    Optional<ProviderAccount> findByMeetingProviderId(String id);
 
     List<ProviderAccount> findAllByMeetingProviderType(MeetingProviderTypeEnum type);
-
-    List<ProviderAccount> findAllByMeetingProviderTypeAndIsActive(MeetingProviderTypeEnum type,boolean isActive);
 
      Optional<List<ProviderAccount>> findAllByIdIn(Set<String> ids);
 
      Optional<ProviderAccount> findByAccountMailAndMeetingProviderTypeAndIdNot(String accountMail,
                                                                                MeetingProviderTypeEnum type, String id);
-
-     @Override
-     @Transactional
-     <S extends ProviderAccount> S save(S entity);
  }
