@@ -14,12 +14,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @SuperBuilder
 public class ProviderAccountDTO implements Serializable {
-    private static final long serialVersionUID = -542895211665937754L;
+    @NotEmpty(message="id can't be null")
     private String id;
     @NotEmpty(message="account mail can't be null")
     protected String accountMail;
-    @NotEmpty(message="applicationName mail can't be null")
-    private String applicationName;
-    private MeetingProviderDTO meetingProvider;
-    private MeetingProviderTypeEnum meetingProviderType;
 }

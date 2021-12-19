@@ -60,16 +60,6 @@ public class ZoomMeetingObjectDTO implements Serializable {
 
     private  ZoomSettingsDTO settings;
 
-    private ZoomAccountDTO account;
+    private String accountId;
 
-    @Override
-    public String toString() {
-        return "ZoomMeetingObjectDTO [agenda=" + agenda + ", assistant_id=" + assistant_id + ", created_at="
-                + created_at + ", duration=" + duration + ", h323_password=" + h323_password + ", host_email="
-                + host_email + ", id=" + id + ", join_url=" + join_url + ", occurrences=" + occurrences + ", password="
-                + password + ", pmi=" + pmi + ", recurrence=" + recurrence + ", registration_url=" + registration_url
-                + ", schedule_for=" + schedule_for + ", settings=" + settings + ", start_time=" + start_time
-                + ", start_url=" + start_url + ", timezone=" + timezone + ", topic=" + topic + ", tracking_fields="
-                + tracking_fields + ", type=" + type + ", uuid=" + uuid + "]";
-    }
 }

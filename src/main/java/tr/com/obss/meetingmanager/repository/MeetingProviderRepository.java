@@ -9,8 +9,6 @@ import java.util.Optional;
 
 public interface MeetingProviderRepository extends JpaRepository<MeetingProvider, String> {
 
-    Optional<MeetingProvider> findMeetingProviderByMeetingProviderType(MeetingProviderTypeEnum type);
-
     List<MeetingProvider> findAllByIsActive(boolean isActive);
 
 }

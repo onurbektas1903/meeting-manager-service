@@ -30,4 +30,5 @@ public class MeetingProviderDTO implements Serializable {
     @NotNull(message = "meetingProviderType is mandatory")
     private MeetingProviderTypeEnum meetingProviderType;
     private HashMap<String,String> settings;
+    private HashMap<String,String> accounts;
 }

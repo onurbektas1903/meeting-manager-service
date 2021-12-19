@@ -31,7 +31,7 @@ public class MeetingDTO implements Serializable {
     private MeetingProviderTypeEnum meetingProviderType;
     @NotNull(message = "meetingProvider is mandatory")
     private  MeetingProviderDTO meetingProvider;
-    private ProviderAccountDTO providerAccount;
+    private String providerAccount;
     private String calendarEventId;
     private String eventId;
 

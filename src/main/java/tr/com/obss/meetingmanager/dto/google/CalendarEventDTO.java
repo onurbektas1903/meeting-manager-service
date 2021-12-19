@@ -21,6 +21,6 @@ public class CalendarEventDTO implements Serializable {
     private boolean createMeeting;
     private String summary;
     private String creator;
-    private GoogleAccountDTO account;
     private String eventId;
+    private String accountId;
 }

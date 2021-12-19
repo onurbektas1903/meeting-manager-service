@@ -13,6 +13,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class DeleteEventDTO implements Serializable {
     private static final long serialVersionUID = -7748878249651705322L;
+    private String accountId;
     private String creator;
-    private GoogleAccountDTO account;
+    private String eventId;
 }

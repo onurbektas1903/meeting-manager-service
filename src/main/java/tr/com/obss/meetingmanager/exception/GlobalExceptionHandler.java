@@ -11,12 +11,10 @@ import org.springframework.web.context.request.WebRequest;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @ControllerAdvice
@@ -48,8 +46,16 @@ public class GlobalExceptionHandler {
             ObjectInUseException ex, WebRequest request) {
     return new ResponseEntity<>(
         new ErrorMessage(
-                CONFLICT.value(), ex.getErrList(), ex.getMessage()),
-        NOT_FOUND);
+                ex.getCode(), ex.getErrList(), ex.getMessage()),
+            CONFLICT);
+    }
+    @ExceptionHandler(BusinessValidationException.class)
+    public ResponseEntity<ErrorMessage> handleBusinessValidationException(
+            BusinessValidationException ex, WebRequest request) {
+    return new ResponseEntity<>(
+        new ErrorMessage(
+               ex),
+            BAD_REQUEST);
     }
 
     @ExceptionHandler(NotUniqueException.class)

@@ -3,14 +3,12 @@ package tr.com.obss.meetingmanager.service.google;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tr.com.obss.meetingmanager.mapper.google.GoogleMapperDecorator;
+import tr.com.obss.meetingmanager.mapper.google.GoogleMapper;
 import tr.com.obss.meetingmanager.sender.KafkaMessageSender;
 import tr.com.obss.meetingmanager.dto.MeetingDTO;
-import tr.com.obss.meetingmanager.dto.ProviderAccountDTO;
 import tr.com.obss.meetingmanager.dto.SlotRequestDTO;
 import tr.com.obss.meetingmanager.dto.google.CalendarEventDTO;
 import tr.com.obss.meetingmanager.dto.google.DeleteEventDTO;
-import tr.com.obss.meetingmanager.dto.google.GoogleAccountDTO;
 import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 import tr.com.obss.meetingmanager.feigns.GoogleCalendarServiceClient;
 import tr.com.obss.meetingmanager.service.MeetingService;
@@ -23,32 +21,27 @@ import static tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum.GOOGLE;
 public class GoogleMeetingService implements MeetingService {
     private final ApplicationKafkaTopics topics;
     private final GoogleCalendarServiceClient calendarClientService;
-    private final GoogleAccountService googleAccountService;
-    private final GoogleMapperDecorator googleMapper;
+    private final GoogleMapper googleMapper;
     private final KafkaMessageSender messageSender;
     @Override
     @Transactional("ptm")
     public MeetingDTO handleCreate(MeetingDTO meetingDTO) {
-        GoogleAccountDTO googleAccount = googleAccountService.findGoogleAccount();
-        CalendarEventDTO calendarEvent = googleMapper.toCalendarEventDTO(meetingDTO,googleAccount,true);
+        CalendarEventDTO calendarEvent = googleMapper.toCalendarEventDTO(meetingDTO,true);
         CalendarEventDTO response = calendarClientService.scheduleEvent(calendarEvent);
         meetingDTO.setCalendarEventId(response.getEventId());
         meetingDTO.setMeetingURL(response.getMeetingUrl());
-        meetingDTO.setProviderAccount(ProviderAccountDTO.builder().id(googleAccount.getId()).build());
         return meetingDTO;
     }
 
     @Transactional("ptm")
     public void addMeetingToCalendar(MeetingDTO meetingDTO){
-        GoogleAccountDTO googleAccount = googleAccountService.findGoogleAccount();
-        CalendarEventDTO calendarEvent = googleMapper.toCalendarEventDTO(meetingDTO,googleAccount,false);
+        CalendarEventDTO calendarEvent = googleMapper.toCalendarEventDTO(meetingDTO,false);
         CalendarEventDTO response = calendarClientService.scheduleEvent(calendarEvent);
         meetingDTO.setCalendarEventId(response.getEventId());
     }
     @Transactional("ptm")
     public void sendChangeSlotMail(SlotRequestDTO slotRequestDTO){
-        calendarClientService.changeSlot(googleMapper.toGoogleMailDTO(slotRequestDTO,
-                googleAccountService.findGoogleAccount()));
+        calendarClientService.changeSlot(googleMapper.toGoogleMailDTO(slotRequestDTO));
     }
     @Override
     @Transactional("ptm")
@@ -58,16 +51,14 @@ public class GoogleMeetingService implements MeetingService {
     }
     @Transactional("ptm")
     public void updateCalendarMeeting(MeetingDTO meetingDTO,boolean withMeet){
-        calendarClientService.updateEvent(googleMapper.toCalendarEventDTO(meetingDTO,
-                googleAccountService.findGoogleAccount(),withMeet));
+        calendarClientService.updateEvent(googleMapper.toCalendarEventDTO(meetingDTO,withMeet));
     }
 
     @Override
     @Transactional("ptm")
     public void handleCancel(MeetingDTO meetingDTO) {
-        GoogleAccountDTO googleAccount = googleAccountService.findGoogleAccount();
-        DeleteEventDTO deleteEventDTO = googleMapper.toDeleteEventDTO(googleAccount,meetingDTO);
-        calendarClientService.deleteEvent(deleteEventDTO,meetingDTO.getCalendarEventId());
+        calendarClientService.deleteEvent(new DeleteEventDTO(meetingDTO.getProviderAccount(),
+                        meetingDTO.getOrganizer(),meetingDTO.getCalendarEventId()));
     }
 
     @Override

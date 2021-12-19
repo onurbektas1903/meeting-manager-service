@@ -19,36 +19,36 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 @FeignClient(value = "google-calendar-service")
 public interface GoogleCalendarServiceClient {
-    @PostMapping("/google-manager/event")
+    @PostMapping("/google-event-manager/event")
     CalendarEventDTO scheduleEvent(@RequestBody CalendarEventDTO calendarEvent);
 
     @PostMapping(
-            path = "/google-manager/account",
+            path = "/google-event-manager/account",
             consumes = MULTIPART_FORM_DATA_VALUE
     )
     CalendarEventDTO createAccount(@RequestPart MultipartFile accountFile, @RequestPart String accountMail);
 
     @PutMapping(
-            path = "/google-manager/account/{accountName}",
+            path = "/google-event-manager/account/{accountName}",
             consumes = MULTIPART_FORM_DATA_VALUE
      )
     void updateAccount(@RequestPart MultipartFile file, @PathVariable String accountName);
 
-    @DeleteMapping("/google-manager/account/{accountName}")
+    @DeleteMapping("/google-event-manager/account/{accountName}")
     @ResponseBody
     @ResponseStatus(OK)
     void deleteAccount(@PathVariable String accountName);
 
-    @PostMapping("/google-manager/google-mail")
+    @PostMapping("/google-event-manager/google-mail")
      void changeSlot(@RequestBody GoogleMailDTO mailDTO);
 
-    @PostMapping("/google-manager/update-event")
+    @PostMapping("/google-event-manager/update-event")
     @ResponseBody
     @ResponseStatus(OK)
     CalendarEventDTO updateEvent(@RequestBody CalendarEventDTO calendarEvent);
 
-    @DeleteMapping("/google-manager/event/{eventId}")
+    @PostMapping("/google-event-manager/delete-event}")
     @ResponseBody
     @ResponseStatus(OK)
-     String deleteEvent(@RequestBody DeleteEventDTO deleteEventDTO, @PathVariable String eventId);
+     String deleteEvent(@RequestBody DeleteEventDTO deleteEventDTO);
 }

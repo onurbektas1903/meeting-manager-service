@@ -16,8 +16,6 @@ import java.util.UUID;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum.GOOGLE;
 import static tr.com.obss.meetingmanager.enums.SlotRequestStatusEnum.WAITING;
-import static tr.com.obss.meetingmanager.meeting.utils.MeetingProviderAccountTestFactory.createProviderAccount;
-import static tr.com.obss.meetingmanager.meeting.utils.MeetingProviderAccountTestFactory.createProviderAccountDTO;
 import static tr.com.obss.meetingmanager.meeting.utils.MeetingProviderTestFactory.createMeetingProviderDTO;
 
 public class MeetingTestObjectFactory {
@@ -48,7 +46,7 @@ public class MeetingTestObjectFactory {
             .recipients(createRecipientsDTOList())
             .organizer(ORGANIZER)
             .slotRequests(new ArrayList<>())
-            .providerAccount(createProviderAccountDTO(GOOGLE)).build();
+            .providerAccount("Account").build();
   }
   public static Meeting createMeetingEntity() {
     Meeting meeting = new Meeting();
@@ -60,7 +58,7 @@ public class MeetingTestObjectFactory {
             meeting.setSlotRequests(new ArrayList<>());
             meeting.setEndDate(END_DATE);
             meeting.setOrganizer(ORGANIZER);
-            meeting.setProviderAccount(createProviderAccount(GOOGLE));
+            meeting.setProviderAccount("account");
     return meeting;
   }
   public static SlotRequestDTO createSlotRequestDTO(){

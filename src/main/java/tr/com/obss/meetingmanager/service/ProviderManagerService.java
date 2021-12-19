@@ -11,7 +11,8 @@ import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
 import tr.com.obss.meetingmanager.dto.ProviderAccountDTO;
 import tr.com.obss.meetingmanager.entity.Meeting;
 import tr.com.obss.meetingmanager.entity.MeetingProvider;
-import tr.com.obss.meetingmanager.entity.ProviderAccount;
+import tr.com.obss.meetingmanager.enums.ConferenceProviderTypeEnum;
+import tr.com.obss.meetingmanager.exception.MeetingOccupiedException;
 import tr.com.obss.meetingmanager.exception.NotFoundException;
 import tr.com.obss.meetingmanager.exception.ObjectInUseException;
 import tr.com.obss.meetingmanager.factory.MeetProviderHandlerFactory;
@@ -32,7 +33,6 @@ public class ProviderManagerService {
   private final MeetProviderHandlerFactory handlerFactory;
   private final MeetingProviderMapper providerMapper;
   private final MeetingProviderRepository repository;
-  private final ProviderAccountManagerService accountManagerService;
   private final MeetingRepository meetingRepository;
 
   @Transactional("ptm")
@@ -46,12 +46,10 @@ public class ProviderManagerService {
     handlerFactory
             .findStrategy(meetingProviderDTO.getMeetingProviderType())
             .createMeetingProvider(meetingProviderDTO);
-    MeetingProvider meetingProvider = providerMapper.toEntityWithoutAccounts(meetingProviderDTO);
-    setAccounts(meetingProviderDTO, meetingProvider);
+    MeetingProvider meetingProvider = providerMapper.toEntity(meetingProviderDTO);
     return providerMapper.toDTO(repository.save(meetingProvider));
   }
 
-  @Cacheable(cacheNames = "provider", key = "#id", unless = "#result == null")
   public MeetingProvider getById(String id) {
     return repository
         .findById(id)
@@ -76,24 +74,9 @@ public class ProviderManagerService {
     handlerFactory
             .findStrategy(meetingProviderDTO.getMeetingProviderType())
             .createMeetingProvider(meetingProviderDTO);
-    setAccounts(meetingProviderDTO, provider);
     return providerMapper.toDTO(repository.save(provider));
   }
 
-  @Transactional("ptm")
-  public void setAccounts(MeetingProviderDTO meetingProviderDTO, MeetingProvider provider) {
-    Set<String> accounts =
-        meetingProviderDTO.getProviderAccounts().parallelStream()
-            .map(ProviderAccountDTO::getId)
-            .collect(Collectors.toSet());
-    List<ProviderAccount> accountList = accountManagerService.findAccountsByIds(accounts);
-    provider.getProviderAccounts().forEach(providerAccount ->{
-      if(!accounts.contains(providerAccount.getId())){
-        providerAccount.setMeetingProvider(null);
-      }
-    });
-    provider.addProviderAccounts(accountList);
-  }
   @Caching(
       evict = {
         @CacheEvict(cacheNames = "provider", key = "#id"),
@@ -104,9 +87,10 @@ public class ProviderManagerService {
   public void deleteMeetingProvider(String id) {
     MeetingProvider provider = getById(id);
     checkProviderUsedByAnyMeeting(id);
-    provider.getProviderAccounts().forEach(providerAccount -> providerAccount.setMeetingProvider(null));
     repository.delete(provider);
   }
+
+
 
   @Cacheable(cacheNames = "providers")
   public List<MeetingProviderDTO> getMeetingProviders() {

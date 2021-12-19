@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
-import tr.com.obss.meetingmanager.audit.BaseEntity;
+import tr.com.common.audit.AuditableEntity;
 import tr.com.obss.meetingmanager.enums.SlotRequestStatusEnum;
 
 import javax.persistence.Entity;
@@ -17,7 +17,7 @@ import javax.persistence.ManyToOne;
 @NoArgsConstructor
 @Entity
 @Where(clause = "deleted = false")
-public class SlotRequest extends BaseEntity {
+public class SlotRequest extends AuditableEntity {
     private static final long serialVersionUID = 7515289605959696408L;
     private String creator;
     private String organizer;

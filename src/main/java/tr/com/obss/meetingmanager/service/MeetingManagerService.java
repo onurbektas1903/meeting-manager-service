@@ -4,13 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tr.com.obss.meetingmanager.dto.MeetingDTO;
+import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
 import tr.com.obss.meetingmanager.dto.MeetingQueryDTO;
-import tr.com.obss.meetingmanager.dto.ProviderAccountDTO;
 import tr.com.obss.meetingmanager.dto.SlotRequestDTO;
 import tr.com.obss.meetingmanager.entity.Meeting;
+import tr.com.obss.meetingmanager.entity.MeetingProvider;
 import tr.com.obss.meetingmanager.entity.SlotRequest;
+import tr.com.obss.meetingmanager.enums.ConferenceProviderTypeEnum;
 import tr.com.obss.meetingmanager.enums.SlotRequestStatusEnum;
 import tr.com.obss.meetingmanager.exception.BusinessValidationException;
+import tr.com.obss.meetingmanager.exception.MeetingOccupiedException;
 import tr.com.obss.meetingmanager.exception.NotFoundException;
 import tr.com.obss.meetingmanager.factory.MeetHandlerFactory;
 import tr.com.obss.meetingmanager.mapper.SlotRequestMapper;
@@ -33,10 +36,12 @@ public class MeetingManagerService {
   private final SlotRequestMapper slotRequestMapper;
   private final SlotRequestRepository slotRepository;
   private final GoogleMeetingService googleMeetingService;
+  private final ProviderManagerService providerManagerService;
 
   @Transactional("ptm")
   public MeetingDTO createMeeting(MeetingDTO meetingDTO) {
     validate(meetingDTO);
+    meetingDTO.setProviderAccount(getSuitableAccount(meetingDTO.getStart(),meetingDTO.getEnd(),meetingDTO.getMeetingProvider()));
     MeetingDTO createdMeeting =
         handlerFactory
             .findStrategy(meetingDTO.getMeetingProvider().getMeetingProviderType())
@@ -57,6 +62,9 @@ public class MeetingManagerService {
     meeting.addSlotRequest(slotRequestEntity);
     return slotRequestMapper.toDTO(slotRequestEntity);
   }
+  public List<SlotRequestDTO> getSlotRequests(String meetingId){
+     return slotRequestMapper.toDTOList(slotRepository.findAllByMeetingId(meetingId));
+  }
 
   public List<MeetingDTO> searchMeetings(MeetingQueryDTO queryDTO) {
     return mapper.toDTOList(repository.searchMeetings(queryDTO));
@@ -66,8 +74,6 @@ public class MeetingManagerService {
   public MeetingDTO updateMeeting(MeetingDTO meetingDTO, String id) {
     validate(meetingDTO);
     Meeting meeting = findById(id);
-    meetingDTO.setProviderAccount(
-        ProviderAccountDTO.builder().id(meeting.getProviderAccount().getId()).build());
     MeetingDTO updatedMeeting =
         handlerFactory
             .findStrategy(meetingDTO.getMeetingProvider().getMeetingProviderType())
@@ -84,7 +90,7 @@ public class MeetingManagerService {
     if (isApproved) {
       meeting.setStartDate(slotRequestDTO.getStartDate());
       meeting.setEndDate(slotRequestDTO.getEndDate());
-      MeetingDTO meetingDTO = mapper.toDTOWithAccount(meeting);
+      MeetingDTO meetingDTO = mapper.toDTO(meeting);
       handlerFactory
           .findStrategy(meetingDTO.getMeetingProvider().getMeetingProviderType())
           .handleUpdate(meetingDTO);
@@ -94,6 +100,32 @@ public class MeetingManagerService {
       updateSlotRequest(slotRequest, SlotRequestStatusEnum.REJECTED);
     }
     return slotRequestMapper.toDTO(slotRequest);
+  }
+
+  public String getSuitableAccount(long startDate, long endDate, MeetingProviderDTO providerDTO) {
+    return providerDTO.getConferenceType() == ConferenceProviderTypeEnum.POOL
+        ? findFreeAccountsForGivenDateRange(startDate, endDate, providerDTO.getId())
+        : findAccountByProviderId(providerDTO.getId());
+  }
+
+  private String findAccountByProviderId(String id) {
+    MeetingProviderDTO provider = providerManagerService.findById(id);
+    return provider.getAccounts().keySet().stream()
+        .findAny()
+        .orElseThrow(() -> new NotFoundException("Meeting " + "Provider Not Found"));
+  }
+
+  private String findFreeAccountsForGivenDateRange(
+      long startDate, long endDate, String providerId) {
+    MeetingProvider provider = providerManagerService.getById(providerId);
+
+    List<String> freeAccounts =
+        repository.findFreeAccounts(startDate, endDate, provider.getAccounts().keySet());
+    if (freeAccounts.isEmpty()) {
+      throw new MeetingOccupiedException(
+          "No Free Accounts Found ", Collections.singleton("meetingAccount"));
+    }
+    return freeAccounts.get(0);
   }
 
   private SlotRequest findSlotRequestById(String id) {
@@ -116,14 +148,14 @@ public class MeetingManagerService {
     SlotRequest slotRequest = findSlotRequestById(id);
     slotRepository.deleteById(slotRequest.getId());
     return slotRequestMapper.toDTO(slotRequest);
-}
+  }
 
   @Transactional("ptm")
   public void deleteMeeting(String id) {
     Meeting meeting = findById(id);
     handlerFactory
-        .findStrategy(meeting.getProviderAccount().getMeetingProviderType())
-        .handleCancel(mapper.toDTOWithAccount(meeting));
+        .findStrategy(meeting.getMeetingProvider().getMeetingProviderType())
+        .handleCancel(mapper.toDTO(meeting));
     repository.deleteById(id);
   }
 

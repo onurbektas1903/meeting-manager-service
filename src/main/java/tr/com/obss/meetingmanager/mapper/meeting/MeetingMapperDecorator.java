@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Primary;
 import tr.com.obss.meetingmanager.dto.MeetingDTO;
 import tr.com.obss.meetingmanager.dto.ProviderAccountDTO;
 import tr.com.obss.meetingmanager.entity.Meeting;
-import tr.com.obss.meetingmanager.entity.ProviderAccount;
 
 import java.util.List;
 import java.util.UUID;
@@ -35,15 +34,6 @@ public class MeetingMapperDecorator implements MeetingMapper {
     MeetingDTO meetingDTO = delegate.toDTO(meeting);
       meetingDTO.setMeetingProvider(
           providerMapper.toDTOWithoutProviderAccounts(meeting.getMeetingProvider()));
-    return meetingDTO;
-  }
-
-  @Override
-  public MeetingDTO toDTOWithAccount(Meeting meeting) {
-    MeetingDTO meetingDTO = toDTO(meeting);
-
-    meetingDTO.setProviderAccount(
-        ProviderAccountDTO.builder().id(meeting.getProviderAccount().getId()).build());
     return meetingDTO;
   }
 

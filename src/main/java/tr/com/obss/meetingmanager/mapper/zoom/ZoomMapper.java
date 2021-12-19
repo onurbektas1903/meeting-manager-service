@@ -1,23 +1,31 @@
 package tr.com.obss.meetingmanager.mapper.zoom;
 
-import org.mapstruct.DecoratedWith;
-import org.mapstruct.InjectionStrategy;
-import org.mapstruct.Mapping;
-import tr.com.obss.meetingmanager.dto.zoom.ZoomAccountDTO;
-import tr.com.obss.meetingmanager.entity.ProviderAccount;
+import com.fasterxml.jackson.core.type.TypeReference;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import tr.com.obss.meetingmanager.dto.MeetingDTO;
+import tr.com.obss.meetingmanager.dto.zoom.ZoomMeetingObjectDTO;
+import tr.com.obss.meetingmanager.util.TimeUtil;
 
-import java.util.List;
+import java.util.HashMap;
 
-@org.mapstruct.Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-@DecoratedWith(ZoomMapperDecorator.class)
-public interface ZoomMapper {
-    @Mapping(target = "accountDetails", ignore = true)
-    @Mapping(target = "meetingProvider.providerAccounts",ignore = true)
-    ZoomAccountDTO toDTO(ProviderAccount providerAccount);
+import static tr.com.obss.meetingmanager.util.TimeUtil.convertAndGetDate;
 
-    @Mapping(target = "accountDetails",ignore = true)
-    ProviderAccount toEntity(ZoomAccountDTO zoomAccountDTO);
+@Configuration
+public class ZoomMapper {
+    private final int zoomScheduledMeetingType = 2;
+    TypeReference<HashMap<String,String>> typeRef
+            = new TypeReference<>() {
+    };
+    //TODO handle settings
+    public ZoomMeetingObjectDTO toZoomMeetObject(MeetingDTO meetingDTO){
 
-    List<ZoomAccountDTO> toDTOList(List<ProviderAccount> accounts);
-
+        return   ZoomMeetingObjectDTO.builder()
+                .start_time( convertAndGetDate(meetingDTO.getStart(),"Turkey"))
+                .topic(meetingDTO.getTitle())
+                .type(zoomScheduledMeetingType)
+                .duration(TimeUtil.findDiffrenceAsMinutes( meetingDTO.getStart(),meetingDTO.getEnd()))
+                .accountId(meetingDTO.getProviderAccount()).build();
+    }
 }

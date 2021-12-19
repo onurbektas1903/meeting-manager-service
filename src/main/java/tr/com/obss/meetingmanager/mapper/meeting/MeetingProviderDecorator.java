@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Primary;
 import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
 import tr.com.obss.meetingmanager.dto.ProviderAccountDTO;
 import tr.com.obss.meetingmanager.entity.MeetingProvider;
-import tr.com.obss.meetingmanager.entity.ProviderAccount;
 
 import java.util.List;
 import java.util.UUID;
@@ -32,23 +31,24 @@ public class MeetingProviderDecorator implements MeetingProviderMapper{
     }
 
     @Override
+    public MeetingProvider toEntity(MeetingProviderDTO meetingProviderDTO) {
+        MeetingProvider provider = delegate.toEntity(meetingProviderDTO);
+        if (provider.getId() == null){
+            provider.setId(UUID.randomUUID().toString());
+        }
+        return provider;
+    }
+
+    @Override
     public MeetingProviderDTO toDTOWithoutProviderAccounts(MeetingProvider meetingProvider) {
         return delegate.toDTOWithoutProviderAccounts(meetingProvider);
     }
 
     @Override
     public MeetingProviderDTO toDTO(MeetingProvider meetingProvider) {
-        MeetingProviderDTO meetingProviderDTO = delegate.toDTOWithoutProviderAccounts(meetingProvider);
-        List<ProviderAccountDTO> accounts = meetingProvider.getProviderAccounts().parallelStream()
-                .map(this::toDTOWithoutProvider).collect(Collectors.toList());
-        meetingProviderDTO.setProviderAccounts(accounts);
-        return meetingProviderDTO;
+        return delegate.toDTO(meetingProvider);
     }
 
-    @Override
-    public ProviderAccountDTO toDTOWithoutProvider(ProviderAccount pa) {
-        return delegate.toDTOWithoutProvider(pa);
-    }
 
     @Override
     public List<MeetingProviderDTO> toDTOList(List<MeetingProvider> meetingProviders) {

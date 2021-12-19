@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import tr.com.obss.meetingmanager.dto.zoom.ZoomAccountDTO;
@@ -16,24 +17,24 @@ import static org.springframework.http.HttpStatus.OK;
 @FeignClient(value = "zoom-service")
 public interface ZoomServiceClient {
 
-  @PostMapping("/zoom-manager/meeting")
+  @PostMapping("/zoom-event-manager/meeting")
   ZoomMeetingObjectDTO createMeeting(@RequestBody ZoomMeetingObjectDTO zmo);
 
-  @PutMapping("/zoom-manager/meeting/{meetingId}")
+  @PutMapping("/zoom-event-manager/meeting/{meetingId}")
   @ResponseBody
   ZoomMeetingObjectDTO updateZoomMeeting(
       @PathVariable String meetingId, @RequestBody ZoomMeetingObjectDTO zmo);
 
-  @DeleteMapping("/zoom-manager/meeting/{meetingId}")
-  void deleteZoomMeeting(@PathVariable String meetingId, @RequestBody ZoomAccountDTO account);
+  @DeleteMapping("/zoom-event-manager/meeting/{meetingId}")
+   void deleteZoomMeeting(@PathVariable String meetingId, @RequestParam String accountId);
 
-  @PostMapping("/zoom-manager/account")
+  @PostMapping("/zoom-account-manager/account")
    ZoomAccountDTO createZoomAccount(@RequestBody ZoomAccountDTO zmo);
 
-  @PutMapping("/zoom-manager/account/{accountMail}")
+  @PutMapping("/zoom-account-manager/account/{accountMail}")
   ZoomAccountDTO updateAccount(@PathVariable String accountMail,  ZoomAccountDTO accountDTO);
 
-  @DeleteMapping("/zoom-manager/account/{accountMail}")
+  @DeleteMapping("/zoom-account-manager/account/{accountMail}")
   @ResponseBody
   @ResponseStatus(OK)
    void deleteAccount(@PathVariable  String accountMail);

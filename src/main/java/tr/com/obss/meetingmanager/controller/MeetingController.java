@@ -68,6 +68,12 @@ private final SlotRequestService slotRequestService;
         return meetingManagerService.listMeetings(start,end);
     }
 
+    @GetMapping("/meeting-slot-requests/{meetingId}")
+    @ResponseBody
+    public List<SlotRequestDTO> listSlotRequests(@PathVariable String meetingId) {
+        return meetingManagerService.getSlotRequests(meetingId);
+    }
+
     @PostMapping("/meeting-slot-request")
     @ResponseBody
     public SlotRequestDTO createChangeMeetingSlotRequest(
@@ -85,12 +91,4 @@ private final SlotRequestService slotRequestService;
     public SlotRequestDTO deleteSlotRequetsById(@PathVariable String id){
         return meetingManagerService.removeSlotRequest(id);
     }
-
-    @GetMapping("/meeting-slot-requests/{meetingId}")
-    @ResponseBody
-    public List<SlotRequestDTO> getSlotRequestsByMeeting(
-            @Valid @PathVariable String meetingId) {
-        return slotRequestService.getSlotRequestsByMeetingId(meetingId);
-    }
-
 }

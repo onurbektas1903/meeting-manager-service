@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import tr.com.obss.meetingmanager.audit.BaseEntity;
+import tr.com.common.audit.AuditableEntity;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -26,17 +26,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @ToString(exclude = {"recipients","slotRequests"})
-@NamedEntityGraph(
-    name = "account-entity-graph",
-    attributeNodes = {
-      @NamedAttributeNode(value = "providerAccount", subgraph = "providerAccount-subgraph"),
-    },
-    subgraphs = {
-      @NamedSubgraph(
-          name = "providerAccount-subgraph",
-          attributeNodes = {@NamedAttributeNode("meetingProvider")})
-    })
-public class Meeting extends BaseEntity {
+public class Meeting extends AuditableEntity {
 
   private static final long serialVersionUID = -6694299942650744346L;
   private String title;
@@ -66,9 +56,7 @@ public class Meeting extends BaseEntity {
   @SQLDelete(sql = "UPDATE SlotRequest SET deleted = true WHERE id = ?")
   private List<SlotRequest> slotRequests;
 
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "provider_account_id", nullable = false)
-  private ProviderAccount providerAccount;
+  private String providerAccount;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "meeting_provider_id", nullable = false)

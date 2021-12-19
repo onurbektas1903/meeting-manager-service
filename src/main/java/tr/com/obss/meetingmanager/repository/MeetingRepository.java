@@ -16,19 +16,15 @@ public interface MeetingRepository extends JpaRepository<Meeting, String>,Search
           + " where startDate between ?1 and  ?2")
   List<Meeting> findMeetingsBetweenStartAndEndDate(long startDate, long endDate);
 
-  @EntityGraph(value = "account-entity-graph", type = EntityGraph.EntityGraphType.LOAD)
   Optional<Meeting> findMeetingById(String id);
-
-  @Query(
-          "select new Meeting (id,title,startDate,endDate,organizer) from Meeting"
-                  + " where providerAccount.id = ?1 and startDate >= ?2")
-  List<Meeting> findAccountsFutureMeetings(String accountId, long now);
 
   List<Meeting> findByMeetingProviderId(String meetingProviderId);
 
-//  @Query(
-//          "select new Meeting (id,title,startDate,endDate,organizer) from Meeting"
-//                  + " where providerAccount.id = ?1 and startDate >= ?2")
-//  List<Meeting> findAccountsFutureMeetings(String accountId,long now);
-
+  @Query(
+          "select new java.lang.String (m.providerAccount) from Meeting m"
+                  + " where (?1 between m.startDate and m.endDate"
+                  + "     or ?2 between m.startDate and m.endDate)"
+                  + "     and m.providerAccount in ?3 "
+                  + "    ")
+  List<String> findFreeAccounts(long startDate,long endDate,Set<String> accountIds);
 }
