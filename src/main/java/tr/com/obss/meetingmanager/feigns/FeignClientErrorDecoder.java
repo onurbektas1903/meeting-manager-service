@@ -7,15 +7,16 @@ import com.google.common.io.CharStreams;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import tr.com.common.exceptions.ErrorMessage;
 import tr.com.common.exceptions.ServiceNotAvailableException;
+import tr.com.obss.meetingmanager.exception.ProviderException;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 @Slf4j
-public class DrmClientErrorDecoder implements ErrorDecoder {
-    private final ErrorDecoder defaultErrorDecoder = new Default();
+public class FeignClientErrorDecoder implements ErrorDecoder {
 
     @Override
     public Exception decode(String s, Response response) {
@@ -32,9 +33,9 @@ public class DrmClientErrorDecoder implements ErrorDecoder {
             log.error(e.getMessage());
         }
         if (500 == response.status()) {
-            throw new ServiceNotAvailableException("Google Server Unreachable");
+            return  new ServiceNotAvailableException("Service Unreachable");
+        }else {
+            return new ProviderException(message, HttpStatus.valueOf(response.status()));
         }
-
-        return defaultErrorDecoder.decode(s, response);
     }
 }

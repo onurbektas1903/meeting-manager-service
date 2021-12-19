@@ -7,14 +7,11 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tr.com.common.exceptions.NotFoundException;
+import tr.com.common.exceptions.ObjectInUseException;
 import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
-import tr.com.obss.meetingmanager.dto.ProviderAccountDTO;
 import tr.com.obss.meetingmanager.entity.Meeting;
 import tr.com.obss.meetingmanager.entity.MeetingProvider;
-import tr.com.obss.meetingmanager.enums.ConferenceProviderTypeEnum;
-import tr.com.obss.meetingmanager.exception.MeetingOccupiedException;
-import tr.com.obss.meetingmanager.exception.NotFoundException;
-import tr.com.obss.meetingmanager.exception.ObjectInUseException;
 import tr.com.obss.meetingmanager.factory.MeetProviderHandlerFactory;
 import tr.com.obss.meetingmanager.mapper.meeting.MeetingProviderMapper;
 import tr.com.obss.meetingmanager.repository.MeetingProviderRepository;
@@ -22,8 +19,6 @@ import tr.com.obss.meetingmanager.repository.MeetingRepository;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

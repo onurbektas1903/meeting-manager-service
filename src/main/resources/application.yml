@@ -41,3 +41,9 @@ eureka:
       defaultZone: http://localhost:8761/eureka
 topics:
   notification: notification-topic
+  zoom-error: zoom-error
+feign:
+  client:
+    config:
+      default:
+        errorDecoder: tr.com.obss.meetingmanager.feigns.FeignClientErrorDecoder

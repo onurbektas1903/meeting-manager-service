@@ -1,7 +1,7 @@
 package tr.com.obss.meetingmanager.resilliance4j.predicates;
 
 import org.springframework.http.ResponseEntity;
-import tr.com.obss.meetingmanager.exception.ErrorMessage;
+import tr.com.common.exceptions.ErrorMessage;
 
 import java.util.function.Predicate;
 
