@@ -9,4 +9,6 @@ public interface MeetingService {
     MeetingDTO handleUpdate(MeetingDTO meetingDTO);
     void handleCancel(MeetingDTO meetingDTO);
     MeetingProviderTypeEnum getStrategyName();
+    void handleRollback(MeetingDTO meetingDTO);
+
 }

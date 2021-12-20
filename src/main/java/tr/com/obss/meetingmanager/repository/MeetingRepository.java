@@ -1,8 +1,9 @@
 package tr.com.obss.meetingmanager.repository;
 
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import tr.com.obss.meetingmanager.dto.IMeetingOrganizerReportDTO;
+import tr.com.obss.meetingmanager.dto.IMeetingTimeReportDTO;
 import tr.com.obss.meetingmanager.entity.Meeting;
 
 import java.util.List;
@@ -27,4 +28,23 @@ public interface MeetingRepository extends JpaRepository<Meeting, String>,Search
                   + "     and m.providerAccount in ?3 "
                   + "    ")
   List<String> findFreeAccounts(long startDate,long endDate,Set<String> accountIds);
+
+  @Query(
+          value = "select count(*),to_char(to_timestamp( m.start_date/1000 ),'MM/YYYY') as " +
+          "yearMonth ,m.meeting_provider_id as providerId from meeting m    " +
+          "where m.deleted = false AND m.start_date between ?1 and ?2    " +
+          "group by (m.meeting_provider_id,yearMonth)    " +
+          "ORDER BY  m.meeting_provider_id ,2 ASC ",nativeQuery=true)
+  List<IMeetingTimeReportDTO> findUsageStatistics(long startDate, long endDate);
+
+  @Query(
+      value =
+          "select count(*) as count,m.organizer from meeting m    "
+              + "where m.deleted = false    "
+              + "  and m.start_date between ?1 and ?2    "
+              + "group by m.organizer    "
+              + "order by  count    "
+              + "limit 10",
+      nativeQuery = true)
+  List<IMeetingOrganizerReportDTO> findTopOrganizers(long startDate, long endDate);
 }

@@ -3,8 +3,8 @@ package tr.com.obss.meetingmanager.service.google;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tr.com.obss.meetingmanager.clients.GoogleRestClient;
 import tr.com.obss.meetingmanager.mapper.google.GoogleMapper;
-import tr.com.obss.meetingmanager.sender.KafkaMessageSender;
 import tr.com.obss.meetingmanager.dto.MeetingDTO;
 import tr.com.obss.meetingmanager.dto.SlotRequestDTO;
 import tr.com.obss.meetingmanager.dto.google.CalendarEventDTO;
@@ -22,12 +22,13 @@ public class GoogleMeetingService implements MeetingService {
     private final ApplicationKafkaTopics topics;
     private final GoogleCalendarServiceClient calendarClientService;
     private final GoogleMapper googleMapper;
-    private final KafkaMessageSender messageSender;
+    private final GoogleRestClient googleRestClient;
+
     @Override
     @Transactional("ptm")
     public MeetingDTO handleCreate(MeetingDTO meetingDTO) {
         CalendarEventDTO calendarEvent = googleMapper.toCalendarEventDTO(meetingDTO,true);
-        CalendarEventDTO response = calendarClientService.scheduleEvent(calendarEvent);
+        CalendarEventDTO response = googleRestClient.scheduleEvent(calendarEvent).getBody();
         meetingDTO.setCalendarEventId(response.getEventId());
         meetingDTO.setMeetingURL(response.getMeetingUrl());
         return meetingDTO;
@@ -36,9 +37,11 @@ public class GoogleMeetingService implements MeetingService {
     @Transactional("ptm")
     public void addMeetingToCalendar(MeetingDTO meetingDTO){
         CalendarEventDTO calendarEvent = googleMapper.toCalendarEventDTO(meetingDTO,false);
-        CalendarEventDTO response = calendarClientService.scheduleEvent(calendarEvent);
+        CalendarEventDTO response = googleRestClient.scheduleEvent(calendarEvent).getBody();
         meetingDTO.setCalendarEventId(response.getEventId());
     }
+
+
     @Transactional("ptm")
     public void sendChangeSlotMail(SlotRequestDTO slotRequestDTO){
         calendarClientService.changeSlot(googleMapper.toGoogleMailDTO(slotRequestDTO));
@@ -64,6 +67,11 @@ public class GoogleMeetingService implements MeetingService {
     @Override
     public MeetingProviderTypeEnum getStrategyName() {
         return GOOGLE;
+    }
+
+    @Override
+    public void handleRollback(MeetingDTO meetingDTO) {
+
     }
 
 }

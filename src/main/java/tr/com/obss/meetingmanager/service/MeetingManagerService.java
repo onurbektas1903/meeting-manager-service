@@ -1,10 +1,13 @@
 package tr.com.obss.meetingmanager.service;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tr.com.common.exceptions.BusinessValidationException;
 import tr.com.common.exceptions.NotFoundException;
+import tr.com.obss.meetingmanager.dto.IMeetingOrganizerReportDTO;
+import tr.com.obss.meetingmanager.dto.IMeetingTimeReportDTO;
 import tr.com.obss.meetingmanager.dto.MeetingDTO;
 import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
 import tr.com.obss.meetingmanager.dto.MeetingQueryDTO;
@@ -18,14 +21,21 @@ import tr.com.obss.meetingmanager.exception.MeetingOccupiedException;
 import tr.com.obss.meetingmanager.factory.MeetHandlerFactory;
 import tr.com.obss.meetingmanager.mapper.SlotRequestMapper;
 import tr.com.obss.meetingmanager.mapper.meeting.MeetingMapper;
+import tr.com.obss.meetingmanager.repository.MeetingProviderRepository;
 import tr.com.obss.meetingmanager.repository.MeetingRepository;
 import tr.com.obss.meetingmanager.repository.SlotRequestRepository;
 import tr.com.obss.meetingmanager.service.google.GoogleMeetingService;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static tr.com.obss.meetingmanager.enums.ConferenceProviderTypeEnum.POOL;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +47,7 @@ public class MeetingManagerService {
   private final SlotRequestRepository slotRepository;
   private final GoogleMeetingService googleMeetingService;
   private final ProviderManagerService providerManagerService;
-
+  private final MeetingProviderRepository providerRepository;
   @Transactional("ptm")
   public MeetingDTO createMeeting(MeetingDTO meetingDTO) {
     validate(meetingDTO);
@@ -50,7 +60,6 @@ public class MeetingManagerService {
     repository.save(meeting);
     return createdMeeting;
   }
-
   @Transactional("ptm")
   public SlotRequestDTO addSlotRequestToMeeting(SlotRequestDTO slotRequestDTO) {
     Meeting meeting = findById(slotRequestDTO.getMeetingId());
@@ -101,9 +110,14 @@ public class MeetingManagerService {
     }
     return slotRequestMapper.toDTO(slotRequest);
   }
-
+  public List<IMeetingTimeReportDTO> getTimeBasedUsageReport(long startDate, long endDate){
+    return repository.findUsageStatistics(startDate,endDate);
+  }
+  public List<IMeetingOrganizerReportDTO> getOrganizerReport(long startDate, long endDate){
+    return repository.findTopOrganizers(startDate,endDate);
+  }
   public String getSuitableAccount(long startDate, long endDate, MeetingProviderDTO providerDTO) {
-    return providerDTO.getConferenceType() == ConferenceProviderTypeEnum.POOL
+    return providerDTO.getConferenceType() == POOL
         ? findFreeAccountsForGivenDateRange(startDate, endDate, providerDTO.getId())
         : findAccountByProviderId(providerDTO.getId());
   }

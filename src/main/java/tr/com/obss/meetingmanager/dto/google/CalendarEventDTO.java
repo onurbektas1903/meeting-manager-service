@@ -3,6 +3,7 @@ package tr.com.obss.meetingmanager.dto.google;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -10,6 +11,7 @@ import java.util.Set;
 @Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class CalendarEventDTO implements Serializable {
     private static final long serialVersionUID = 281292269426505630L;
     private long start;

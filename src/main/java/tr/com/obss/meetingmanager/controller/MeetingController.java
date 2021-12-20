@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import tr.com.obss.meetingmanager.dto.IMeetingOrganizerReportDTO;
+import tr.com.obss.meetingmanager.dto.IMeetingTimeReportDTO;
 import tr.com.obss.meetingmanager.dto.MeetingQueryDTO;
 import tr.com.obss.meetingmanager.service.MeetingManagerService;
 import tr.com.obss.meetingmanager.dto.MeetingDTO;
@@ -54,6 +56,20 @@ private final SlotRequestService slotRequestService;
     public List<MeetingDTO> createMeeting(
             @Valid @RequestBody MeetingQueryDTO queryDTO) {
         return meetingManagerService.searchMeetings(queryDTO);
+    }
+    @GetMapping("/meeting-usage")
+    @ResponseBody
+    public List<IMeetingTimeReportDTO> getMeetingProviderUsageStatistics(
+            @RequestParam(value = "start") long  startDate,
+            @RequestParam(value = "end") long  endDate) {
+        return meetingManagerService.getTimeBasedUsageReport(startDate,endDate);
+    }
+    @GetMapping("/meeting-organizers")
+    @ResponseBody
+    public List<IMeetingOrganizerReportDTO> getMeetingOrganizerStatistics(
+            @RequestParam(value = "start") long  startDate,
+            @RequestParam(value = "end") long  endDate) {
+        return meetingManagerService.getOrganizerReport(startDate,endDate);
     }
 
     @DeleteMapping("/meeting/{id}")

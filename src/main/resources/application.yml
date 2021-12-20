@@ -35,10 +35,14 @@ spring:
 server:
   port: 8089
 eureka:
+  instance:
+    prefer-ip-address: true
   client:
     registerWithEureka: true
+    fetchRegistry: true
     service-url:
       defaultZone: http://localhost:8761/eureka
+
 topics:
   notification: notification-topic
   zoom-error: zoom-error
@@ -47,3 +51,14 @@ feign:
     config:
       default:
         errorDecoder: tr.com.obss.meetingmanager.feigns.FeignClientErrorDecoder
+
+resilience4j:
+  retry:
+    instances:
+      googleEvent:
+        maxRetryAttempts: 3
+        waitDuration: 3s
+        retryExceptions:
+            - tr.com.obss.meetingmanager.exception.ProviderException
+shedlock:
+  default-lock-at-most-for: 2
