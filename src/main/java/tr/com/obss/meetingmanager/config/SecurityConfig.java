@@ -7,11 +7,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -31,6 +31,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // Validate tokens through configured OpenID Provider
         http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(jwtAuthenticationConverter());
         // Require authentication for all requests
+        http.authorizeRequests().mvcMatchers(HttpMethod.OPTIONS, "/**").permitAll();
+        http.authorizeRequests().mvcMatchers("/swagger-ui.html/**", "/configuration/**",
+                "/swagger-resources/**", "/v2/api-docs", "/webjars/**").permitAll();
         http.authorizeRequests().anyRequest().authenticated();
         // Allow showing pages within a frame
         http.headers().frameOptions().sameOrigin();
@@ -42,7 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new KeycloakRealmRoleConverter());
         return jwtAuthenticationConverter;
     }
-     @Bean
+    @Bean
     public Set<String> roles(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication == null){
@@ -62,7 +65,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 }
 
-// As per: https://docs.spring.io/spring-security/site/docs/5.2.x/reference/html5/#oauth2resourceserver-jwt-claimsetmapping-rename
 class UsernameSubClaimAdapter implements Converter<Map<String, Object>, Map<String, Object>> {
 
     private final MappedJwtClaimSetConverter delegate = MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
@@ -82,10 +84,8 @@ class KeycloakRealmRoleConverter implements Converter<Jwt, Collection<GrantedAut
     @Override
     @SuppressWarnings("unchecked")
     public Collection<GrantedAuthority> convert(final Jwt jwt) {
-        final Map<String, Object> realmAccess = (Map<String, Object>) jwt.getClaims().get("realm_access");
-        ObjectMapper mapper = new ObjectMapper();
-        return ((List<String>) realmAccess.get("roles")).stream()
-                .map(roleName -> "ROLE_" + roleName)
+        final List<String> roles = (List<String>) jwt.getClaims().get("roles");
+        return roles.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }

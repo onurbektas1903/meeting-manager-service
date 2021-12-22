@@ -2,6 +2,7 @@ package tr.com.obss.meetingmanager.factory;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import tr.com.common.exceptions.NotFoundException;
 import tr.com.obss.meetingmanager.service.ProviderService;
 import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 
@@ -22,8 +23,7 @@ public class MeetProviderHandlerFactory {
     public ProviderService findStrategy(MeetingProviderTypeEnum strategyName) {
         ProviderService providerService = serviceMap.get(strategyName);
         if(providerService == null){
-            //TODO customize this exception
-            throw new RuntimeException("Strategy Not Found");
+            throw new NotFoundException("Strategy Not Found");
         }
         return providerService;
     }

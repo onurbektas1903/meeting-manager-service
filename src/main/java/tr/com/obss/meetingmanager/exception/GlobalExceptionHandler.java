@@ -22,11 +22,12 @@ import java.util.Map;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
-    //TODO Web requesti ne için kullanabilirim araştır
+
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorMessage> handleNotFoundException(
             NotFoundException ex, WebRequest request) {
@@ -39,15 +40,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ErrorMessage(ex), CONFLICT);
     }
 
-//    @ExceptionHandler(UnknownHostException.class)
-//    public ResponseEntity<ErrorMessage> handleUnknownHostException(
-//            UnknownHostException ex, WebRequest request) {
-//    return new ResponseEntity<>(
-//        new ErrorMessage(
-//            NOT_FOUND.value(), Collections.singleton("serviceNotFound"), ex.getMessage()),
-//        NOT_FOUND);
-//    }
-
+    @ExceptionHandler(UnknownHostException.class)
+    public ResponseEntity<ErrorMessage> handleUnknownHostException(
+            UnknownHostException ex, WebRequest request) {
+    return new ResponseEntity<>(
+        new ErrorMessage(
+            SERVICE_UNAVAILABLE.value(), Collections.singleton("serviceNotFound"), ex.getMessage()),
+            SERVICE_UNAVAILABLE);
+    }
 
     @ExceptionHandler(ObjectInUseException.class)
     public ResponseEntity<ErrorMessage> handleObjectInUseException(
@@ -79,17 +79,13 @@ public class GlobalExceptionHandler {
             NotUniqueException ex, WebRequest request) {
         return new ResponseEntity<>(new ErrorMessage(ex), CONFLICT);
     }
+
     @ExceptionHandler(ServiceNotAvailableException.class)
     public ResponseEntity<ErrorMessage> handleServiceNotAvailableException(
             ServiceNotAvailableException ex, WebRequest request) {
         return new ResponseEntity<>(new ErrorMessage(ex), NOT_FOUND);
     }
-//    @ExceptionHandler(RuntimeException.class)
-//    public ResponseEntity<ErrorMessage> handleNotUniqueException(
-//            RuntimeException ex, WebRequest request) {
-//        return new ResponseEntity<>(new ErrorMessage(INTERNAL_SERVER_ERROR.value(),Collections.emptySet(),ex.getMessage()),
-//                INTERNAL_SERVER_ERROR);
-//    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorMessage> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException ex, WebRequest request) {

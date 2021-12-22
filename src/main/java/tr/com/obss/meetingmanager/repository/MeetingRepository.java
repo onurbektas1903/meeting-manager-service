@@ -27,14 +27,15 @@ public interface MeetingRepository extends JpaRepository<Meeting, String>,Search
                   + "     or ?2 between m.startDate and m.endDate)"
                   + "     and m.providerAccount in ?3 "
                   + "    ")
-  List<String> findFreeAccounts(long startDate,long endDate,Set<String> accountIds);
+  List<String> findOccupiedAccounts(long startDate, long endDate, Set<String> accountIds);
 
   @Query(
           value = "select count(*),to_char(to_timestamp( m.start_date/1000 ),'MM/YYYY') as " +
-          "yearMonth ,m.meeting_provider_id as providerId from meeting m    " +
+          "yearMonth ,mp.name as providerId from meeting m    " +
+          "left outer join meeting_provider mp on mp.id =m.meeting_provider_id   " +
           "where m.deleted = false AND m.start_date between ?1 and ?2    " +
-          "group by (m.meeting_provider_id,yearMonth)    " +
-          "ORDER BY  m.meeting_provider_id ,2 ASC ",nativeQuery=true)
+          "group by (mp.name,yearMonth)    " +
+          "ORDER BY  mp.name ,2 ASC ",nativeQuery=true)
   List<IMeetingTimeReportDTO> findUsageStatistics(long startDate, long endDate);
 
   @Query(
@@ -47,4 +48,8 @@ public interface MeetingRepository extends JpaRepository<Meeting, String>,Search
               + "limit 10",
       nativeQuery = true)
   List<IMeetingOrganizerReportDTO> findTopOrganizers(long startDate, long endDate);
+
+  List<Meeting> findAllByMeetingProviderIdAndStartDateBetween(String meetingProviderId, long start,long end);
+
+  List<Meeting> findAllByProviderAccountAndStartDateBetween(String accountId, long start,long end);
 }

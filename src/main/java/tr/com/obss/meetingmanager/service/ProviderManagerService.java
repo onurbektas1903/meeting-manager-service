@@ -1,6 +1,7 @@
 package tr.com.obss.meetingmanager.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -19,10 +20,14 @@ import tr.com.obss.meetingmanager.repository.MeetingRepository;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+
+import static tr.com.obss.meetingmanager.enums.ConferenceProviderTypeEnum.SINGLE;
 
 @Service
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = "providerCache")
+@Slf4j
 public class ProviderManagerService {
 
   private final MeetProviderHandlerFactory handlerFactory;
@@ -36,12 +41,14 @@ public class ProviderManagerService {
         @CacheEvict(cacheNames = "providers", allEntries = true),
         @CacheEvict(cacheNames = "activeProviders", allEntries = true)
       })
+
   public MeetingProviderDTO saveMeetingProvider(MeetingProviderDTO meetingProviderDTO) {
 
     handlerFactory
             .findStrategy(meetingProviderDTO.getMeetingProviderType())
-            .createMeetingProvider(meetingProviderDTO);
+            .validateConferenceSettings(meetingProviderDTO);
     MeetingProvider meetingProvider = providerMapper.toEntity(meetingProviderDTO);
+    log.info("Provider successfully saved",meetingProvider.getId());
     return providerMapper.toDTO(repository.save(meetingProvider));
   }
 
@@ -68,7 +75,8 @@ public class ProviderManagerService {
     providerMapper.updateProvider(meetingProviderDTO, provider);
     handlerFactory
             .findStrategy(meetingProviderDTO.getMeetingProviderType())
-            .createMeetingProvider(meetingProviderDTO);
+            .validateConferenceSettings(meetingProviderDTO);
+    log.info("Provider successfully updated",meetingProviderDTO.getId());
     return providerMapper.toDTO(repository.save(provider));
   }
 
@@ -82,10 +90,9 @@ public class ProviderManagerService {
   public void deleteMeetingProvider(String id) {
     MeetingProvider provider = getById(id);
     checkProviderUsedByAnyMeeting(id);
+    log.info("Provider successfully deleted",id);
     repository.delete(provider);
   }
-
-
 
   @Cacheable(cacheNames = "providers")
   public List<MeetingProviderDTO> getMeetingProviders() {
@@ -93,8 +100,8 @@ public class ProviderManagerService {
   }
 
   @Cacheable(cacheNames = "activeProviders")
-  public List<MeetingProviderDTO> getActiveProviders() {
-    return providerMapper.toDTOList(repository.findAllByIsActive(true));
+  public List<MeetingProviderDTO> getActiveProviders(Set<String> roles) {
+    return providerMapper.toDTOList(repository.findSuitableProviders(SINGLE,roles));
   }
 
   @Transactional("ptm")
@@ -107,6 +114,7 @@ public class ProviderManagerService {
   public MeetingProviderDTO activateDeactivateProvider(String id, boolean isActive) {
     MeetingProvider provider = getById(id);
     provider.setIsActive(isActive);
+    log.info("Provider successfully activate/deactivated",id);
     return providerMapper.toDTO(repository.save(provider));
   }
 

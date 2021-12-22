@@ -9,13 +9,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
 import tr.com.obss.meetingmanager.service.ProviderManagerService;
 import javax.validation.Valid;
+import java.security.Principal;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.OK;
 
@@ -59,10 +65,11 @@ public class MeetingProviderController {
     return providerManagerService.getMeetingProviders();
   }
 
-  @GetMapping("active-providers")
+  @PostMapping("active-providers")
   @ResponseBody
-  public List<MeetingProviderDTO> listActiveProviders() {
-    return providerManagerService.getActiveProviders();
+  public List<MeetingProviderDTO> listActiveProviders(@RequestBody Set<String> roleGroups) {
+
+    return providerManagerService.getActiveProviders(roleGroups);
   }
 
   @PutMapping("/provider/active-passive/{id}/{isActive}")

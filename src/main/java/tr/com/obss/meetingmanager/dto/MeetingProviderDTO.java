@@ -24,11 +24,10 @@ public class MeetingProviderDTO implements Serializable {
     private String name;
     @NotNull(message = "conferenceType is mandatory")
     private ConferenceProviderTypeEnum conferenceType;
-    private List<ProviderAccountDTO> providerAccounts;
     private Boolean isActive;
     private String userRoleGroup;
     @NotNull(message = "meetingProviderType is mandatory")
     private MeetingProviderTypeEnum meetingProviderType;
-    private HashMap<String,String> settings;
-    private HashMap<String,String> accounts;
+    private HashMap<String,Object> settings;
+    private HashMap<String,Object> accounts;
 }

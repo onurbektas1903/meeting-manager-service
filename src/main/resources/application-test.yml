@@ -1,11 +1,8 @@
 spring:
   application:
     name: meeting-manager-service
-  flyway:
-    locations:
-      - classpath:db-migration
   redis:
-    host: localhost
+    host: redis
     port: 6379
     timeout: 10000ms
     lettuce:
@@ -20,32 +17,23 @@ spring:
       time-to-live: 30
       cache-null-values: false
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: broker:9092
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8888/auth/realms/obss-scheduler
+          issuer-uri: http://keycloak:8080/auth/realms/obss-scheduler
   datasource:
-    url: "jdbc:postgresql://localhost:5432/meeting_manager"
+    hikari:
+      auto-commit: false
+    url: "jdbc:postgresql://postgres:5432/postgres"
     username: postgres
     password: postgres
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 5
+    dbName: postgres
   jpa:
     hibernate:
-      ddl-auto: none
-    properties:
-      hibernate:
-        hbm2ddl_auto: none
-        show_sql: false
-        use_sql_comments: true
-        format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        jdbc:
-          lob:
-            non_contextual_creation: true
+      ddl-auto: update
+    show-sql: true
 server:
   port: 8089
 eureka:
@@ -55,7 +43,7 @@ eureka:
     registerWithEureka: true
     fetchRegistry: true
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://discovery-service:8761/eureka
 
 topics:
   notification: notification-topic
@@ -74,13 +62,9 @@ resilience4j:
       googleEvent:
         maxRetryAttempts: 3
         waitDuration: 3s
-        retryExceptions:
-            - tr.com.obss.meetingmanager.exception.ProviderException
-shedlock:
-  default-lock-at-most-for: 2
 
 keycloak:
-  auth-server-url: http://localhost:8888/auth
+  auth-server-url: http://keycloak:8080/auth
   realm: obss-scheduler
   resource: schedule-app-be
   credentials:

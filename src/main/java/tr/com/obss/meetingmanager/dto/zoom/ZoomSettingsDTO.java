@@ -13,29 +13,11 @@ public class ZoomSettingsDTO implements Serializable {
 
     private Boolean participant_video;
 
-    private Boolean cn_meeting;
-
-    private Boolean in_meeting;
-
-    private Boolean join_before_host;
+    private Boolean join_before_host =false;
 
     private Boolean mute_upon_entry;
 
-    private Boolean watermark;
-
-    private Boolean use_pmi;
-
-    private Integer approval_type;
-
-    private Integer registration_type;
-
-    private String audio;
-
-    private String auto_recording;
-
-    private String alternative_hosts;
-
-    private Boolean close_registration;
-
     private Boolean waiting_room;
+
+    private String password;
 }

@@ -10,18 +10,20 @@ import org.springframework.util.concurrent.ListenableFuture;
 import tr.com.common.dto.DomainMessage;
 import tr.com.common.enums.ActionTypeEnum;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional("ptm")
 public class KafkaMessageSender {
-    private final KafkaTemplate<String, DomainMessage> kafkaNotificationTemplate;
-
+    private final KafkaTemplate<String, DomainMessage> kafkaSenderTemplate;
+// fix me şu an için mesajda sıra önemli değil ve sırasız yollandığında kafka daha performanslı. İleride sıra olursa
+// burası refactor edilmeli
     public <T> ListenableFuture<SendResult<String, DomainMessage>> send(
             String topic, T data, ActionTypeEnum actionType) {
-        //TODO fix key
         ProducerRecord<String, DomainMessage> producerRecord =
-                new ProducerRecord<>(topic, "1", new DomainMessage(actionType, data));
-        return this.kafkaNotificationTemplate.send(producerRecord);
+                new ProducerRecord<>(topic, UUID.randomUUID().toString(), new DomainMessage(actionType, data));
+        return this.kafkaSenderTemplate.send(producerRecord);
     }
     
     public <T> ListenableFuture<SendResult<String, DomainMessage>> sendCreated(String topic, T data) {

@@ -11,8 +11,11 @@ import java.io.Serializable;
 @Slf4j
 @AllArgsConstructor
 @NoArgsConstructor
-public class GoogleMeetingSettings implements Serializable {
+public class GoogleSettingsDTO implements Serializable {
     private static final long serialVersionUID = -1615738167514393144L;
-    private Boolean muted;
-    private Boolean canOthersHost;
+    private boolean muted;
+    private boolean canOthersHost;
+    private boolean guestsCanModify;
+    private boolean guestsCanInviteOthers;
+    private String password;
 }

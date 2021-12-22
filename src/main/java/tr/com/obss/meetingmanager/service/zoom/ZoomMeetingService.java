@@ -1,23 +1,21 @@
 package tr.com.obss.meetingmanager.service.zoom;
 
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tr.com.common.exceptions.ServiceNotAvailableException;
-import tr.com.obss.meetingmanager.clients.GoogleRestClient;
 import tr.com.obss.meetingmanager.dto.MeetingDTO;
 import tr.com.obss.meetingmanager.dto.google.DeleteEventDTO;
 import tr.com.obss.meetingmanager.dto.zoom.ZoomMeetingObjectDTO;
 import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
-import tr.com.obss.meetingmanager.exception.ProviderException;
 import tr.com.obss.meetingmanager.feigns.ZoomServiceClient;
 import tr.com.obss.meetingmanager.mapper.zoom.ZoomMapper;
 import tr.com.obss.meetingmanager.sender.KafkaMessageSender;
 import tr.com.obss.meetingmanager.service.MeetingService;
 import tr.com.obss.meetingmanager.service.google.GoogleMeetingService;
+
+import java.util.Map;
 
 import static tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum.ZOOM;
 
@@ -28,17 +26,14 @@ public class ZoomMeetingService implements MeetingService {
   private final ZoomServiceClient zoomServiceClient;
   private final GoogleMeetingService googleMeetingService;
   private final ZoomMapper zoomMapper;
-  private final KafkaMessageSender messageSender;
-  @Value("${topics.zoom-error}")
-  private String zoomErrorTopic;
 
   @Override
   @Transactional("ptm")
-  public MeetingDTO handleCreate(MeetingDTO meetingDTO) {
+  public MeetingDTO handleCreate(MeetingDTO meetingDTO, Map<String,Object> settings) {
     ZoomMeetingObjectDTO zoomMeeting = zoomMapper.toZoomMeetObject(meetingDTO);
     ZoomMeetingObjectDTO zoomResponse =
         zoomServiceClient.createMeeting(zoomMeeting);
-    log.info("Zoom service created meeting");
+    log.info("Zoom service created meeting",zoomMeeting.getId());
     meetingDTO.setMeetingURL(zoomResponse.getJoin_url());
     meetingDTO.setEventId(zoomResponse.getId());
     googleMeetingService.addMeetingToCalendar(meetingDTO);
@@ -47,9 +42,10 @@ public class ZoomMeetingService implements MeetingService {
 
   @Override
   @Transactional("ptm")
-  public MeetingDTO handleUpdate(MeetingDTO meetingDTO) {
+  public MeetingDTO handleUpdate(MeetingDTO meetingDTO, Map<String,Object> settings) {
     zoomServiceClient.updateZoomMeeting(meetingDTO.getEventId(), zoomMapper.toZoomMeetObject(meetingDTO));
-    googleMeetingService.updateCalendarMeeting(meetingDTO, false);
+    googleMeetingService.updateCalendarMeeting(meetingDTO, null,false);
+    log.info("Zoom service succesfully updated meeting",meetingDTO.getId());
     return meetingDTO;
   }
 
@@ -58,6 +54,8 @@ public class ZoomMeetingService implements MeetingService {
   public void handleCancel(MeetingDTO meetingDTO) {
       zoomServiceClient.deleteZoomMeeting(meetingDTO.getEventId(),meetingDTO.getProviderAccount());
       googleMeetingService.handleCancel(meetingDTO);
+    log.info("Zoom service succesfully cancaled meeting",meetingDTO.getId());
+
   }
 
   @Override
@@ -65,9 +63,4 @@ public class ZoomMeetingService implements MeetingService {
     return ZOOM;
   }
 
-  @Override
-  public void handleRollback(MeetingDTO meetingDTO) {
-      messageSender.sendDeleted(zoomErrorTopic,new DeleteEventDTO(meetingDTO.getProviderAccount(),
-              meetingDTO.getOrganizer(),meetingDTO.getEventId()));
-  }
 }

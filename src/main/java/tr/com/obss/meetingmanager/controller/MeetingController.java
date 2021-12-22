@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import tr.com.obss.meetingmanager.dto.IMeetingOrganizerReportDTO;
 import tr.com.obss.meetingmanager.dto.IMeetingTimeReportDTO;
+import tr.com.obss.meetingmanager.dto.MeetingProviderDTO;
 import tr.com.obss.meetingmanager.dto.MeetingQueryDTO;
 import tr.com.obss.meetingmanager.service.MeetingManagerService;
 import tr.com.obss.meetingmanager.dto.MeetingDTO;
 import tr.com.obss.meetingmanager.dto.SlotRequestDTO;
-import tr.com.obss.meetingmanager.service.SlotRequestService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -29,7 +29,6 @@ import java.util.List;
 @Validated
 public class MeetingController {
 private final MeetingManagerService meetingManagerService;
-private final SlotRequestService slotRequestService;
 
     @PostMapping("/meeting")
     @ResponseBody
@@ -64,6 +63,13 @@ private final SlotRequestService slotRequestService;
             @RequestParam(value = "end") long  endDate) {
         return meetingManagerService.getTimeBasedUsageReport(startDate,endDate);
     }
+    @GetMapping("/meetings/{providerId}")
+    @ResponseBody
+    public List<MeetingDTO> getMeetingByProviderId(@PathVariable String providerId, @RequestParam long start,
+                                                       @RequestParam long end){
+        return meetingManagerService.getMeetingsByProviderIdBtwRange(providerId,start,end);
+    }
+
     @GetMapping("/meeting-organizers")
     @ResponseBody
     public List<IMeetingOrganizerReportDTO> getMeetingOrganizerStatistics(

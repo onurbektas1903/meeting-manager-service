@@ -31,8 +31,8 @@ public class MeetingProvider extends AuditableEntity {
     private MeetingProviderTypeEnum meetingProviderType;
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb")
-    private Map<String,String> settings = new HashMap<>();
+    private Map<String,Object> settings = new HashMap<>();
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb")
-    private Map<String,String> accounts = new HashMap<>();
+    private Map<String,Object> accounts = new HashMap<>();
 }

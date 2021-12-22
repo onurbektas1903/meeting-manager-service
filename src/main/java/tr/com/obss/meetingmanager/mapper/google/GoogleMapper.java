@@ -8,6 +8,7 @@ import tr.com.obss.meetingmanager.dto.RecipientDTO;
 import tr.com.obss.meetingmanager.dto.SlotRequestDTO;
 import tr.com.obss.meetingmanager.dto.google.CalendarEventDTO;
 import tr.com.obss.meetingmanager.dto.google.GoogleMailDTO;
+import tr.com.obss.meetingmanager.dto.google.GoogleSettingsDTO;
 import tr.com.obss.meetingmanager.enums.MeetingProviderTypeEnum;
 
 import java.util.stream.Collectors;
@@ -28,7 +29,7 @@ public class GoogleMapper {
                         .build();
     }
 
-    public CalendarEventDTO toCalendarEventDTO(MeetingDTO meetingDTO,boolean withMeet){
+    public CalendarEventDTO toCalendarEventDTO(MeetingDTO meetingDTO, GoogleSettingsDTO googleSettingsDTO, boolean withMeet){
         MeetingProviderTypeEnum type = meetingDTO.getMeetingProvider().getMeetingProviderType();
         return CalendarEventDTO.builder()
                 .meetingUrl(meetingDTO.getMeetingURL())
@@ -41,6 +42,7 @@ public class GoogleMapper {
                 .accountId(meetingDTO.getProviderAccount())
                 .eventId(meetingDTO.getCalendarEventId())
                 .createMeeting(withMeet)
+                .googleSettings(googleSettingsDTO)
                 .eventAttendees(meetingDTO.getRecipients()
                         .stream().map(RecipientDTO::getName).collect(Collectors.toSet())).build();
     }
